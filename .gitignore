@@ -1,0 +1,10 @@
+.DS_Store
+
+# Pacotes gerados pelo pack.sh
+*.zip
+*.tar.gz
+old-files/
+
+# Arquivos locais do Claude Code
+.claude/settings.local.json
+*.local.*
