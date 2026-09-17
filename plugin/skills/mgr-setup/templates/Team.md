@@ -23,7 +23,7 @@ trackerBoardUrl: "{{https://...}}"
 
 | Nome | Link | Descrição |
 | --- | --- | --- |
-| {{Topic Name}} | [[Topic - {{Topic Name}} - {{Team Name}}]] | {{Uma linha sobre o tópico}} |
+| {{Topic Name}} | [[Topic - {{Topic Name}}]] | {{Uma linha sobre o tópico}} |
 
 ## Fontes
 

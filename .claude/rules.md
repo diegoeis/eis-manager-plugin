@@ -42,7 +42,7 @@ Todo estado é texto simples: JSON só para `config.json`; tudo o mais é Markdo
 
 - Idioma nunca é perguntado: a skill responde no idioma em que o usuário escreve.
 - Ferramentas nunca são perguntadas por nome: pede-se a URL (board do tracker, messenger) e infere-se a ferramenta pelo domínio.
-- Setup cadastra identidade e relações (workspace, times, pessoas, tópicos com owner e descrição). Status, prazo, estado atual e fontes de um tópico não são perguntados no setup; entram pelas skills de report ou por edição manual.
+- Setup cadastra identidade e relações (workspace, times, pessoas, tópicos com os times/fóruns/pessoas relacionados e descrição). Status, prazo, estado atual e fontes de um tópico não são perguntados no setup; entram pelas skills de report ou por edição manual.
 - Fontes adicionais (vault do Obsidian, pasta do Drive, reuniões) não são perguntadas no setup. Quando o usuário citar um path ou URL numa conversa, qualquer skill grava em `config.json` → `sources`. Se uma skill precisar de uma fonte não registrada, pergunta uma vez e grava.
 - Toda pergunta, formulário ou seletor de pasta vem precedido de uma ou duas frases dizendo por que está sendo pedido e o que será feito com a resposta. Seletor ou formulário sem contexto é defeito. No Cowork, texto escrito entre chamadas de ferramenta não aparece (vira resumo); contexto antes de um seletor tem que ir pela ferramenta de mensagem ao usuário (`send_user_message`).
 - No Cowork, pasta se obtém pelo seletor nativo (pedido de conexão de pasta), não por path digitado; path digitado é o fallback para hosts sem seletor.
@@ -60,9 +60,10 @@ As relações entre workspace, times, tópicos e pessoas vivem no frontmatter, v
       AGENTS.md                      # narrativa do workspace (empresa, contexto, o que importa)
       CLAUDE.md                      # só aponta para AGENTS.md
       Team - <Team Name>.md
-      Topic - <Topic Name> - <Team Name>.md   # team = teamOwner; evita colisão de tópicos homônimos entre times
+      Forum - <Forum Name>.md
       Person - <Person Name>.md
-      Report - <Team Name> - <YYYY-MM-DD>.md   # gerado por mgr-status-report; nunca sobrescrito
+      Topic - <Topic Name>.md            # só o nome; não tem dono único, pode se relacionar com vários times, fóruns ou pessoas
+      Report - <Subject Name> - <YYYY-MM-DD>.md # gerado por mgr-status-report; nunca sobrescrito
       memory/                        # Fatia 3
 ```
 
@@ -70,25 +71,35 @@ Templates customizados por workspace ficam no backlog; hoje só existem os de `p
 
 Nomes de pasta em kebab-case. Nomes de arquivo em Title Case com prefixo do tipo: `<Type> - <Name>.md`.
 
+### Sujeitos
+
+**Sujeito** é o que possui tópicos, carrega fontes e recebe status report: `Team`, `Forum` (reunião recorrente de decisão ou alinhamento, com participantes; não é um time) ou `Person` com `tracked: true` (liderado acompanhado individualmente). Os três têm as mesmas seções `## Topics` e `## Fontes`; o `mgr-status-report` trata igual e só varia o que está listado por tipo em `data-model.md`: board (time; fórum e pessoa opcional), filtro de `assignee` no tracker (pessoa), e responsável padrão (time: PM e Tech Lead; fórum: facilitador; pessoa: ela mesma).
+
+Report de pessoa é sobre os tópicos e entregas que ela responde por, nunca sobre comportamento. Mensagens diretas não são fonte em nenhum caso. O report fica no workspace do gestor e não é material de compartilhamento; a skill diz isso no resumo.
+
 ### Resolução de wikilinks
 
-Como no Obsidian: `[[X]]` resolve para o arquivo `X.md`, e só isso. O link carrega sempre o nome completo do arquivo, com prefixo: `teamOwner: "[[Team - Squad X]]"`, `maintainer: "[[Person - Nome]]"`. Nunca resolver pelo campo `name`, nunca inferir prefixo. Se o arquivo não existir, o link é um rótulo e a skill segue sem erro. Exceção: `isPartOf` de um time aponta para o workspace, que não tem nota; é só rótulo.
+Como no Obsidian: `[[X]]` resolve para o arquivo `X.md`, e só isso. O link carrega sempre o nome completo do arquivo, com prefixo: `relatedTeam: ["[[Team - Squad X]]"]`, `maintainer: "[[Person - Nome]]"`. Nunca resolver pelo campo `name`, nunca inferir prefixo. Se o arquivo não existir, o link é um rótulo e a skill segue sem erro. Exceção: `isPartOf` de um time ou fórum aponta para o workspace, que não tem nota; é só rótulo.
+
+Um tópico não tem dono único: `relatedTeam`, `relatedForum` e `relatedPerson` são três listas independentes (cada uma pode ter zero, um ou vários links) e juntas decidem em quais sujeitos o tópico aparece. `maintainer` é só a pessoa responsável no dia a dia, sem relação com essas listas.
 
 ### Inferências que o modelo permite
 
-- Tópicos de um time: todos os `Topic - * - <Team Name>.md`; `teamOwner` deve bater com o sufixo.
+- Tópicos de um sujeito: todos os `Topic - *.md` cujo `relatedTeam`, `relatedForum` ou `relatedPerson` aponte pra ele — sempre pelo frontmatter, nunca pelo nome do arquivo.
+- Sujeitos do workspace: `Team - *.md`, `Forum - *.md` e `Person - *.md` com `tracked: true`.
 - Pessoas de um time: todos os `Person - *.md` com `isPartOf` apontando pra ele.
-- Times envolvidos num tópico: `teamOwner` mais `relatedTeam`.
+- Times envolvidos num tópico: sua lista `relatedTeam`.
 - Árvore de projetos: `isPartOf` entre tópicos.
 
 ### Frontmatter mínimo
 
 Templates completos em `plugin/skills/mgr-setup/templates/`. Campos obrigatórios:
 
-- **Person**: `name`, `type: person`, `role`, `isPartOf`, `description`.
+- **Person**: `name`, `type: person`, `role`, `description`, `tracked`; `isPartOf` só quando o time é conhecido.
+- **Forum**: `name`, `type: forum`, `facilitator`, `members`, `isPartOf`, `description`, `cadence`, `trackerBoardKey`, `trackerBoardUrl` (`TBD` quando não há board).
 - **Team**: `name`, `type: team`, `productManager`, `techLead`, `isPartOf`, `description`, `trackerBoardKey`, `trackerBoardUrl`.
-- **Topic**: `name`, `type: topic`, `status` (`on_track | in_risk | problem`), `teamOwner`, `maintainer`, `isPartOf`, `description`, `relatedTeam`, `created`, `dueDate`.
-- **Report**: `name`, `type: report`, `reportType` (`team-status`), `team`, `periodStart`, `periodEnd`, `generated`, `topics`, `sourcesConsulted`, `sourcesSkipped`, `previousReport` (omitido no primeiro).
+- **Topic**: `name`, `type: topic`, `status` (`on_track | in_risk | problem`), `maintainer`, `isPartOf`, `description`, `relatedTeam`, `relatedForum`, `relatedPerson`, `created`, `dueDate`. Sem dono único: `relatedTeam`/`relatedForum`/`relatedPerson` são listas independentes, cada uma com zero, um ou vários links.
+- **Report**: `name`, `type: report`, `reportType` (`status`), `subjectType` (`team | person | forum`), `subject`, `periodStart`, `periodEnd`, `generated`, `topics`, `sourcesConsulted`, `sourcesSkipped`, `previousReport` (omitido no primeiro).
 
 `description` tem até 350 caracteres. Campos que não são identificadores (canais, reuniões, docs, links) vão no corpo, em seções fixas.
 
@@ -96,7 +107,9 @@ Templates completos em `plugin/skills/mgr-setup/templates/`. Campos obrigatório
 
 Seções H2 fixas, na ordem, para extração por heading:
 
-- **Team**: Sobre; Pessoas e papéis (tabela: nome, role, descrição); Topics (tabela: nome, link, descrição dos tópicos que é owner); Fontes (Canais; Reuniões e transcrições como lista: uma reunião por item e, aninhados, os lugares onde ela pode estar — Granola, Tactiq, Drive, pasta local, Obsidian — com path ou link; Arquivos — mesmas subseções do Topic; o status-report consulta em todo report do time e grava ali o que aprender sobre o time).
+- **Team**: Sobre; Pessoas e papéis (tabela: nome, role, descrição); Topics (tabela: nome, link, descrição dos tópicos cujo `relatedTeam` inclui esse time); Fontes (Canais; Reuniões e transcrições como lista: uma reunião por item e, aninhados, os lugares onde ela pode estar — Granola, Tactiq, Drive, pasta local, Obsidian — com path ou link; Arquivos — mesmas subseções do Topic; o status-report consulta em todo report do time e grava ali o que aprender sobre o time).
+- **Forum**: Sobre; Participantes (tabela: nome, papel no fórum, descrição); Topics; Fontes (como Team).
+- **Person** com `tracked: true`: Sobre; Topics; Fontes (como Team).
 - **Topic**: Contexto; Status atual (farol, descrição de até 100 palavras, link do último report); Fontes (canais com nome e URL, reuniões/transcrições, arquivos); Reports (links dos reports gerados).
 - **Report**: Resumo executivo; Farol por tópico; Por tópico; Entregas no período; Riscos e pontos de atenção; Decisões e pendências; Fontes consultadas; Não verificado. Toda frase factual termina com `[Fn]` apontando para uma linha de Fontes consultadas.
 

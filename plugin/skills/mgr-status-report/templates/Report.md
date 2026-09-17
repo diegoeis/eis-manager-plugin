@@ -1,21 +1,22 @@
 ---
-name: "{{Team Name}} - {{YYYY-MM-DD}}"
+name: "{{Subject Name}} - {{YYYY-MM-DD}}"
 type: report
-reportType: team-status
-team: "[[Team - {{Team Name}}]]"
+reportType: status
+subjectType: {{team | person | forum}}
+subject: "[[{{Team | Person | Forum}} - {{Subject Name}}]]"
 periodStart: {{YYYY-MM-DD}}
 periodEnd: {{YYYY-MM-DD}}
 generated: {{YYYY-MM-DD}}
 topics:
-  - "[[Topic - {{Topic Name}} - {{Team Name}}]]"
+  - "[[Topic - {{Topic Name}}]]"
 sourcesConsulted:
   - {{tracker | messenger | meetings}}
 sourcesSkipped:
   - {{tracker | messenger | meetings}}
-previousReport: "[[Report - {{Team Name}} - {{YYYY-MM-DD}}]]"
+previousReport: "[[Report - {{Subject Name}} - {{YYYY-MM-DD}}]]"
 ---
 
-# Status report - {{Team Name}} - {{YYYY-MM-DD}}
+# Status report - {{Subject Name}} - {{YYYY-MM-DD}}
 
 Período: {{YYYY-MM-DD}} a {{YYYY-MM-DD}}. Gerado em {{YYYY-MM-DD}} a partir das fontes listadas em [[#Fontes consultadas]].
 
@@ -39,13 +40,13 @@ Período: {{YYYY-MM-DD}} a {{YYYY-MM-DD}}. Gerado em {{YYYY-MM-DD}} a partir das
 - Riscos e bloqueios:
   - {{o que ameaça o tópico, com [Fn](url-do-fn-se-houver); "Nenhum identificado nas fontes consultadas" quando não houver}}
 - Próximos passos: 
-  - {{o que as fontes indicam como próximo, com [Fn](url-do-fn-se-houver); nunca inventar. Responsável: quem a fonte cita; sem citação, "PM e Tech Lead (padrão)"}}
+  - {{o que as fontes indicam como próximo, com [Fn](url-do-fn-se-houver); nunca inventar. Responsável: quem a fonte cita; sem citação, "responsável padrão do sujeito (padrão)"}}
 
 #### Ações e Pendências
 
 {Coloque aqui a lista de ações e pendências que ficaram no último report para serem revisitadas e as novas adicionadas que foram identificadas para esse report. A url do report original deve ser incluída para referência quando o item vem de reports anteriores. Não inclua os itens que já foram marcados com [x] nos reports anteriores.}
 
-  - [ ] {{Nome do Responsável citado pela fonte; sem citação, "<PM> e <Tech Lead> (padrão)"}} - {{Descrição da ação ou pendência que aguarda decisão, com [Fn](url-do-fn-se-houver) quando houver}} - {{[YYYY-MM-DD](arquivo-do-report-original)}}
+  - [ ] {{Nome do Responsável citado pela fonte; sem citação, "<responsável padrão do sujeito> (padrão)"}} - {{Descrição da ação ou pendência que aguarda decisão, com [Fn](url-do-fn-se-houver) quando houver}} - {{[YYYY-MM-DD](arquivo-do-report-original)}}
   - [x] {{Nome do Responsável}} - {{decisões tomadas e o que aguarda decisão, com [Fn](url-do-fn-se-houver) quando houver}} - {{[YYYY-MM-DD](arquivo-do-report-original)}}
 
 
@@ -53,15 +54,15 @@ Período: {{YYYY-MM-DD}} a {{YYYY-MM-DD}}. Gerado em {{YYYY-MM-DD}} a partir das
 
 | Item               | Tópico                     | Concluído em   | Fonte    |
 | ------------------ | -------------------------- | -------------- | -------- |
-| {{ABC-123 Título}} | [[Topic - {{Topic Name}} - {{Team Name}}]] | {{YYYY-MM-DD}} | [F{{n}}] |
+| {{ABC-123 Título}} | [[Topic - {{Topic Name}}]] | {{YYYY-MM-DD}} | [F{{n}}] |
 
 ## Riscos e pontos de atenção
 
-- {{Risco, impacto esperado, tópico afetado, responsável (citado, ou PM e Tech Lead como padrão), [Fn]}}
+- {{Risco, impacto esperado, tópico afetado, responsável (citado, ou responsável padrão do sujeito), [Fn]}}
 
 ## Decisões e pendências
 
-- {{Decisão tomada ou pendente, quem decide (citado, ou PM e Tech Lead como padrão), prazo se citado, [Fn]}}
+- {{Decisão tomada ou pendente, quem decide (citado, ou responsável padrão do sujeito), prazo se citado, [Fn]}}
 
 ## Fontes consultadas
 

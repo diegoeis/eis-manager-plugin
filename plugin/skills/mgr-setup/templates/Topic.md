@@ -2,12 +2,15 @@
 name: "{{Topic Name}}"
 type: topic
 status: {{on_track | in_risk | problem | TBD}}
-teamOwner: "[[Team - {{Team Name}}]]"
 maintainer: "[[Person - {{Person Name}}]]"
-isPartOf: "[[Topic - {{Parent Topic Name}} - {{Parent Owner Team Name}}]]"
+isPartOf: "[[Topic - {{Parent Topic Name}}]]"
 description: "{{Até 350 caracteres sobre o tópico: problema que ataca, resultado esperado, por que importa agora}}"
 relatedTeam:
-  - "[[Team - {{Other Team Name}}]]"
+  - "[[Team - {{Team Name}}]]"
+relatedForum:
+  - "[[Forum - {{Forum Name}}]]"
+relatedPerson:
+  - "[[Person - {{Person Name}}]]"
 created: {{YYYY-MM-DD}}
 dueDate: {{YYYY-MM-DD}}
 ---
@@ -20,7 +23,7 @@ dueDate: {{YYYY-MM-DD}}
 
 - Farol: {{on_track | in_risk | problem | TBD}}
 - Descrição: {{Até 100 palavras sobre o estado atual, o que avançou, o que bloqueia.}}
-- Último report: [[Report - {{Team Name}} - {{YYYY-MM-DD}}]]
+- Último report: [[Report - {{Subject Name}} - {{YYYY-MM-DD}}]]
 
 ## Fontes
 
@@ -41,4 +44,4 @@ dueDate: {{YYYY-MM-DD}}
 
 ## Reports
 
-- [[Report - {{Team Name}} - {{YYYY-MM-DD}}]]
+- [[Report - {{Subject Name}} - {{YYYY-MM-DD}}]]

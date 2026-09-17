@@ -1,12 +1,12 @@
 ---
 name: mgr-setup
-description: Set up or extend the manager-assistant workspace. Use when the user says "configura o plugin", "setup do manager assistant", "cria um workspace", "adiciona um time", "cadastra um tópico", "novo projeto pra acompanhar", or runs /mgr-setup. Modes via argument - no argument or "--workspace" creates a new workspace and chains into team and topic setup; "--team" adds a team (and its people) to the active workspace; "--topic" adds a topic to a team; "--source" followed by a sentence registers a channel, meeting or folder in the Fontes section of a team or topic note, e.g. "--source adicione a reunião Sync - RPA, do Granola e do vault /path". Interactive by design, but frugal - the first round asks only where to look (skipped when a folder is connected) and where to write, and every later round asks only what could not be inferred from the scanned folders. Never reads trackers or messengers - it only records their URLs. Do not use to generate reports or analyses.
+description: Set up or extend the manager-assistant workspace. Use when the user says "configura o plugin", "setup do manager assistant", "cria um workspace", "adiciona um time", "cadastra um fórum", "quero acompanhar a pessoa X", "cadastra um tópico", or runs /mgr-setup. Modes via argument - none or "--workspace" creates a workspace and chains into team and topic setup; "--team" adds a team and its people; "--forum" adds a forum (recurring decision meeting followed like a team); "--person" starts following a direct report individually; "--topic" adds a topic that can relate to one or several teams, forums or people, not owned by a single one; "--source" plus a sentence registers a channel, meeting or folder in the Fontes section of a subject or topic note, e.g. "--source adicione a reunião Sync - RPA, do Granola e do vault /path". Interactive but frugal - asks only what cannot be inferred from the scanned folders. Never reads trackers or messengers, only records URLs. Do not use to generate reports.
 allowed-tools: Read Write Edit Glob Grep Bash(mkdir *) Bash(ls *) Bash(test *) Bash(echo *)
 ---
 
 # mgr-setup
 
-Creates the state every other `mgr-*` skill depends on: a data folder chosen by the user, its `config.json`, a workspace folder with its narrative, and the `Team`, `Person` and `Topic` notes that describe who does what.
+Creates the state every other `mgr-*` skill depends on: a data folder chosen by the user, its `config.json`, a workspace folder with its narrative, and the `Team`, `Forum`, `Person` and `Topic` notes that describe who does what. Teams, forums and tracked people are the **subjects** the report skill works on; they share `## Topics` and `## Fontes`.
 
 ## Step 0 — Find existing state (before reading anything else)
 
@@ -21,7 +21,7 @@ Read only when the step needs them, not upfront:
 - `${CLAUDE_PLUGIN_ROOT}/references/data-root.md` — before writing `config.json` (schema, tool inference from URLs).
 - `${CLAUDE_PLUGIN_ROOT}/references/data-model.md` — before creating the first note (frontmatter, body sections, wikilinks).
 
-Templates: `${CLAUDE_PLUGIN_ROOT}/skills/mgr-setup/templates/` (this skill's own folder: `AGENTS.md`, `CLAUDE.md`, `Team.md`, `Topic.md`, `Person.md`). Read each one right before creating that kind of note. Every note is created from its template; replace every `{{placeholder}}`, remove example rows that were not filled, never leave a placeholder behind.
+Templates: `${CLAUDE_PLUGIN_ROOT}/skills/mgr-setup/templates/` (this skill's own folder: `AGENTS.md`, `CLAUDE.md`, `Team.md`, `Forum.md`, `Person.md`, `Topic.md`). Read each one right before creating that kind of note. Every note is created from its template; replace every `{{placeholder}}`, remove example rows that were not filled, never leave a placeholder behind.
 
 ## Principles
 
@@ -42,10 +42,12 @@ Parse `$ARGUMENTS`:
 | --- | --- |
 | none, `--workspace` | **workspace**: find or create the data folder, create a workspace, then chain to team, then topic |
 | `--team` | **team**: add a team to the active workspace, then offer topics |
-| `--topic` | **topic**: add a topic to a team in the active workspace |
-| `--source <prose>` | **source**: register a channel, meeting or folder in the `## Fontes` of a team (or topic) note |
+| `--forum` | **forum**: add a forum (recurring decision or alignment meeting) as a subject, then offer topics |
+| `--person` | **person**: start following an existing person individually (`tracked: true`), then offer topics |
+| `--topic` | **topic**: add a topic related to one or several teams, forums or tracked people |
+| `--source <prose>` | **source**: register a channel, meeting or folder in the `## Fontes` of a subject or topic note |
 
-`--team`, `--topic` and `--source` require Step 0 to have found `config.json` with an active workspace. If it did not, ask once for the data folder path; if there is still no `config.json`, print `STATUS: BLOCKED` with the reason and tell the user to run `/mgr-setup` without arguments.
+`--team`, `--forum`, `--person`, `--topic` and `--source` require Step 0 to have found `config.json` with an active workspace. If it did not, ask once for the data folder path; if there is still no `config.json`, print `STATUS: BLOCKED` with the reason and tell the user to run `/mgr-setup` without arguments.
 
 ## Round 1 — Folders (workspace mode)
 
@@ -87,7 +89,7 @@ Ask in one round:
 
 Infer `tools.tracker.tool` and `tools.messenger.tool` from the URL domains per `data-root.md`. Keep the full URLs.
 
-Create `DATA_ROOT/workspaces/<slug>/`, then `AGENTS.md` and `CLAUDE.md` from the templates. Fill `## Sobre` and `## Ferramentas` (two rows: tracker and messenger, with inferred tool and URL). Leave `## Times` with a header only; rows are added as teams are created. Fill `## O que importa acompanhar` and `## Convenções e armadilhas` only if the user volunteered content; otherwise leave one line saying the section is empty and can be edited by hand.
+Create `DATA_ROOT/workspaces/<slug>/`, then `AGENTS.md` and `CLAUDE.md` from the templates. Fill `## Sobre` and `## Ferramentas` (two rows: tracker and messenger, with inferred tool and URL). Leave `## Acompanhamentos` with a header only; rows are added as teams, forums and tracked people are created. Fill `## O que importa acompanhar` and `## Convenções e armadilhas` only if the user volunteered content; otherwise leave one line saying the section is empty and can be edited by hand.
 
 Register the workspace in `config.json` (`workspaces.<slug>` with `referenceFolders`, `tools`, `activeWorkspace`).
 
@@ -118,24 +120,50 @@ Create `Team - <Name>.md` from the template:
 
 Create one `Person - <Name>.md` per person in the table, from the template, if the file does not exist. `isPartOf` links to `[[Team - <Name>]]`. If the person already exists with a different team, do not overwrite; report it in the summary.
 
-Append a row to `## Times` in the workspace `AGENTS.md`.
+Append a row (`team`) to `## Acompanhamentos` in the workspace `AGENTS.md`.
+
+## Mode: forum
+
+A forum is a recurring meeting where decisions or alignments happen (a product committee, a leadership sync, a steering group). It is followed like a team: it owns topics, has sources, gets reports. Ask in one round:
+
+- Forum name (Title Case as it will appear in the file name).
+- Facilitator name and participants (names; existing `Person - *.md` are offered as defaults).
+- Description (up to 350 chars) and cadence.
+- Board URL only if the user mentions one; otherwise `trackerBoardKey` and `trackerBoardUrl` are `TBD` and the tracker is skipped in reports.
+
+Create `Forum - <Name>.md` from the template: `facilitator` and `members` as `[[Person - <Name>]]`; `## Participantes` with every person and their role in the forum; `## Topics` header only; `## Fontes` with the three subsection headers, filled with anything the user volunteered (the forum's own meeting is the natural first entry under `### Reuniões e transcrições`). Create `Person - <Name>.md` for participants that do not exist yet (`tracked: false`; omit `isPartOf` when their team is unknown).
+
+Append a row (`forum`) to `## Acompanhamentos` in the workspace `AGENTS.md`. Then offer topics (default yes).
+
+## Mode: person
+
+Following a person means the user wants status reports about the topics that person answers for. Ask in one round:
+
+- Which person: offer existing `Person - *.md`; a new name creates the note (ask role and team).
+- One paragraph on the scope of the follow-up (feeds `## Sobre`): what the person leads or answers for.
+
+Set `tracked: true` and add `## Sobre`, `## Topics` (header only) and `## Fontes` (headers, plus anything volunteered) to the person's note without touching the existing frontmatter or other content. Say in one line that direct messages are never read and that the user's own 1:1 notes enter through `### Arquivos`.
+
+Append a row (`person`) to `## Acompanhamentos` in the workspace `AGENTS.md`. Then offer topics (default yes).
 
 ## Mode: topic
 
-List existing `Team - *.md` in the active workspace and ask which one owns the topic. If none exist, run team mode first.
+A topic is not owned by a single subject: it can relate to several teams (and, less commonly, forums or tracked people) at once. List the subjects of the active workspace (`Team - *.md`, `Forum - *.md`, `Person - *.md` with `tracked: true`) and ask which one(s) this topic relates to (multi-select). If none exist, run team mode first. With a single subject in the workspace, use it without asking. When run as part of the team/forum/person chain, pre-select the subject just created as a default the user can extend with more teams, not the only option.
 
-Ask in one round, for all topics of that team at once (one line per topic is fine):
+Before creating anything, check whether `Topic - <Name>.md` already exists for the topic name given. If it does, this is the same topic gaining a new related subject: add the missing wikilink(s) to its `relatedTeam`/`relatedForum`/`relatedPerson` list and append a row to the new subject's `## Topics` table — do not create a second file, do not touch its other fields.
+
+For a genuinely new topic, ask in one round, for all topics being added at once (one line per topic is fine):
 
 - Topic name.
-- Maintainer: offer the people of the owner team (from its `## Pessoas e papéis`).
+- Maintainer: offer the people of the chosen subject(s) (team's `## Pessoas e papéis`, forum's `## Participantes`, or the person herself as default).
 - Description (up to 350 chars).
-- Parent topic and related teams only if the user mentions them; do not ask.
+- Parent topic and additional related teams/forums/people only if the user mentions them; do not ask.
 
 Do not ask for status, due date, current state or sources. Those are filled later by the report and analysis skills, or by the user editing the note.
 
-Create `Topic - <Name> - <Team Name>.md` from the template (team = the owner team; the suffix keeps same-named topics of different teams apart). `name` in the frontmatter is the topic name only. `created` is today. `status` and `dueDate` are `TBD`. Omit `isPartOf` when there is no parent. Use an empty list for `relatedTeam` when none. Leave `## Status atual` with the farol as `TBD` and no report link, `## Fontes` with headers only, `## Reports` empty. Fill `## Contexto` from the description and anything the user said about why the topic exists.
+Create `Topic - <Name>.md` from the template. `name` in the frontmatter is the topic name only — never a subject name. `relatedTeam`, `relatedForum` and `relatedPerson` each list the wikilinks (with prefix) of every chosen subject of that type; use an empty list for the ones that got none. `maintainer` links to the person chosen. `created` is today. `status` and `dueDate` are `TBD`. Omit `isPartOf` when there is no parent, otherwise link the parent's file name (`[[Topic - <Parent Name>]]`, no suffix). Leave `## Status atual` with the farol as `TBD` and no report link, `## Fontes` with headers only, `## Reports` empty. Fill `## Contexto` from the description and anything the user said about why the topic exists.
 
-Append a row to the owner team's `## Topics` table with name, `[[Topic - <Name> - <Team Name>]]` and the description's first sentence.
+Append a row to the `## Topics` table of every chosen subject with name, `[[Topic - <Name>]]` and the description's first sentence.
 
 Ask whether to add another topic (default no).
 
@@ -145,7 +173,7 @@ The user describes, in prose after the flag, what to register and where it lives
 
 Resolve from the sentence, in this order:
 
-- **Target note.** A topic named in the sentence ("do tópico X", "no tópico X") targets `Topic - X - <Team>.md`; otherwise the team. The team is the one named, or the only team in the workspace; with several teams and none named, ask which one, listing them. Never guess.
+- **Target note.** A topic named in the sentence ("do tópico X", "no tópico X") targets `Topic - X.md`; otherwise the subject: the team, forum or tracked person named, or the only subject in the workspace. With several subjects and none named, ask which one, listing them by type. Never guess.
 - **Kind**, by what the sentence describes: a channel or URL of a messenger goes to `### Canais`; a meeting title, "reunião", "sync", "weekly", a transcript goes to `### Reuniões e transcrições`; a folder, note, vault path, document or link with no meeting goes to `### Arquivos`. Ask only when it fits none.
 - **Places** (meetings only): every tool or location the sentence names, normalized to the names used in the template (`Granola`, `Tactiq`, `Google Drive`, `Pasta local: <path>`, `Obsidian: <path>`, `Notion: <url>`). A path with no tool named is `Pasta local`. Keep paths and URLs exactly as given.
 
@@ -167,12 +195,12 @@ Always finish with:
 STATUS: OK | WARN
 ```
 
-`WARN` when any field was left as `TBD` or any note was skipped because it already existed. If `DATA_ROOT` is outside the connected folder, add one line saying later sessions will ask for its path. Then list: data root, reference folders, workspace path, files created, files skipped, lines appended (source mode), fields left as `TBD`, and the next step: run `/mgr-status-report <team>` for the first report, or edit any note by hand (the plugin reads frontmatter and section headings, not folder structure).
+`WARN` when any field was left as `TBD` or any note was skipped because it already existed. If `DATA_ROOT` is outside the connected folder, add one line saying later sessions will ask for its path. Then list: data root, reference folders, workspace path, files created, files skipped, lines appended (source mode), fields left as `TBD`, and the next step: run `/mgr-status-report <subject>` for the first report, or edit any note by hand (the plugin reads frontmatter and section headings, not folder structure).
 
 ## Never
 
 - Ask for the output language, the user's name or role.
-- Ask for topic status, due date, current state or sources during team and topic setup; sources are registered only through `--source` or by hand.
+- Ask for topic status, due date, current state or sources during team, forum, person and topic setup; sources are registered only through `--source` or by hand.
 - Ask which tools the company uses; ask for URLs and infer.
 - Read tracker, messenger, meeting or email tools during setup.
 - Write inside `${CLAUDE_PLUGIN_ROOT}`, inside a reference folder (other than the `DATA_ROOT` the user chose), or anywhere other than `DATA_ROOT`.

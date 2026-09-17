@@ -8,7 +8,7 @@ created: {{YYYY-MM-DD}}
 
 # {{Workspace Name}}
 
-Este arquivo é o contexto narrativo do workspace. Qualquer agente que trabalhe com este workspace deve ler este arquivo primeiro e depois as notas `Team - *.md`, `Topic - *.md` e `Person - *.md` desta pasta. As relações entre elas estão no frontmatter, em wikilinks que apontam para o nome do arquivo.
+Este arquivo é o contexto narrativo do workspace. Qualquer agente que trabalhe com este workspace deve ler este arquivo primeiro e depois as notas `Team - *.md`, `Forum - *.md`, `Person - *.md` e `Topic - *.md` desta pasta. As relações entre elas estão no frontmatter, em wikilinks que apontam para o nome do arquivo.
 
 ## Sobre
 
@@ -27,11 +27,13 @@ Este arquivo é o contexto narrativo do workspace. Qualquer agente que trabalhe 
 
 Outras fontes (vault, pastas de documentos, reuniões) ficam em `config.json` → `sources`, registradas conforme aparecem na conversa.
 
-## Times
+## Acompanhamentos
 
-| Time | Link | Descrição |
-| --- | --- | --- |
-| {{Team Name}} | [[Team - {{Team Name}}]] | {{Uma linha}} |
+Times, fóruns e pessoas que recebem status report. Uma linha por sujeito.
+
+| Tipo | Nome | Link | Descrição |
+| --- | --- | --- | --- |
+| {{team | forum | person}} | {{Name}} | [[{{Team | Forum | Person}} - {{Name}}]] | {{Uma linha}} |
 
 ## Convenções e armadilhas
 

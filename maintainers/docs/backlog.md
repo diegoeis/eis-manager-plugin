@@ -25,12 +25,12 @@ Itens deliberadamente fora das fatias atuais. Cada item tem até 300 caracteres.
 
 ## Reports e análises
 
-- [ ] **Report consolidado multi-time** (Fatia 4): um status report que agrega vários times num período, com visão para C-level.
+- [ ] **Report consolidado multi-sujeito** (Fatia 4): um status report que agrega vários times, fóruns ou pessoas num período, com visão para C-level.
 - [ ] **Análise entrega × objetivo**: avaliar se o que foi priorizado tem chance real de mover os OKRs/KPIs definidos.
 - [ ] **Detecção de tópicos urgentes**: varrer fontes e apontar o que ameaça entregas ou indicadores do período.
 - [ ] **Avaliação da quebra de backlog**: medir se as tarefas foram fatiadas pequenas o suficiente para entregas rápidas de valor.
 - [ ] **Métricas de fluxo**: throughput (itens em DONE no período) e leadtime (média em dias úteis do primeiro in-progress até DONE), conforme bases canônicas do PRD. A tabela "Entregas no período" do report já lista os itens DONE; falta o cálculo e a comparação com períodos anteriores.
-- [ ] **Report de um tópico**: `mgr-status-report --topic X` para um report focado num tópico só, com as mesmas fontes. Fatia 2 cobre só time.
+- [ ] **Report de um tópico**: `mgr-status-report --topic X` para um report focado num tópico só, com as mesmas fontes. Hoje o report é por sujeito (time, fórum, pessoa).
 - [ ] **Período incremental**: default "desde o último report do time" em vez de 7 dias fixos.
 - [ ] **Fontes por tópico via conversa**: quando o usuário citar canal ou reunião de um tópico durante o report, gravar em `## Fontes` da nota do tópico (hoje só edição manual).
 - [ ] **Palavras-chave por tópico**: campo ou seção com aliases e epic keys para o mapeamento evidência → tópico; hoje os sub-agentes só usam nome e descrição.
