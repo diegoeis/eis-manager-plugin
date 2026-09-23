@@ -11,19 +11,21 @@ subject: <Subject Name>
 subjectType: team | forum | person
 period: <YYYY-MM-DD>..<YYYY-MM-DD>
 language: <language the user is writing in>
-people: <PM, Tech Lead, facilitator, members, maintainers - names only; for a person, that person>
+people: <PM, Tech Lead, facilitator, members - names only; for a person, that person>
 topics:
   - <Topic Name> | keywords: <name, aliases, epic keys> | channels: <...> | meetings: <what: where, where, ...> | files: <...>
 board: <key and URL>                          # tracker; absent when the subject has none (TBD)
 assignee: <person name>                       # tracker, person subjects only: restrict to items assigned to or reported by them
 doneStatuses / blockedStatuses: <...>         # tracker, when the workspace states them
-channels: <subject channels from its `## Fontes › Canais`, then workspace channels>       # messenger; never DMs
-meetings: <what: where, where, ... - from the subject's `## Fontes › Reuniões e transcrições`>  # meetings
+channels: <subject channels from its `## Fontes relacionadas` (rows whose `Tipo` names a messenger tool), then workspace channels>       # messenger; never DMs
+meetings: <what: where, where, ... - from the subject's `## Fontes relacionadas` (rows whose `Tipo` names a meeting tool, grouped by `Nome`)>  # meetings
 meetingTools: <every place listed under a meeting in the subject or its topics, or "any">  # meetings
 localFolders: <paths where notes or transcripts may exist>   # meetings and local notes
 ```
 
-`localFolders` is built in this order, first entries being the most specific: `### Arquivos` of the subject's `## Fontes`, `### Arquivos` of each topic (also repeated on the topic's `files:`), then `config.json → sources` and `referenceFolders`. Subject-level entries carry `topic: subject` unless the note names a topic.
+`localFolders` is built in this order, first entries being the most specific: the subject's `## Arquivos e assets`, then each topic's `## Arquivos e assets` (also repeated on the topic's `files:`), then `config.json → sources` and `referenceFolders`. Subject-level entries carry `topic: subject` unless the note names a topic.
+
+Every note (subject or topic) exposes sources through the same two sections: `## Fontes relacionadas` (single table Nome | URL/Link | Tipo) and `## Arquivos e assets`. Rows whose `Tipo` names a messenger tool feed `channels`; rows whose `Tipo` names a meeting tool feed `meetings` (grouped by `Nome` when several rows share a title); `## Arquivos e assets` bullets feed `files`.
 
 `meetings` keeps each meeting with the places listed under it, as written (`Weekly do time: Granola, Pasta local /path, Google Drive <link>`). `meetingTools` is the set of all places; when the user registered none it is `any`.
 
@@ -53,7 +55,7 @@ learned: <optional - things worth recording for next time: a channel, a recurrin
 Rules that keep the report honest:
 
 - One fact per item, and a fact is what the source states or shows, not a conclusion about it.
-- `source` lets a human open the exact place. No source, no item.
+- `source` MUST be an openable URL — Jira/Linear issue URL, Slack message permalink, Slack channel URL, Granola/Tactiq meeting URL, Google Drive doc URL, or absolute local file path. Never a bare title like "Sync Squad X no Granola". A meeting evidence without a permalink to the meeting's page (Granola, Tactiq, Drive) is not evidence — do not return it; put the meeting in `coverage.failed` instead with the reason ("Granola meeting matched but permalink not exposed by the connector"). No URL, no item.
 - `topic` only when the source names the topic, a keyword or an issue that belongs to it; otherwise `unknown`. Never by adjacency.
 - Inside the period, except open blockers and overdue items still open at `periodEnd`.
 - No customer names, no personal data beyond team members' names, no long copies of messages or transcripts.
@@ -62,10 +64,10 @@ Rules that keep the report honest:
 
 ## How the skill uses evidence
 
-- Items are renumbered `F1..Fn` in `## Fontes consultadas`, in order of first citation. Every factual sentence in the report carries its `[Fn]`; a sentence with no item behind it goes to `## Não verificado` or is dropped.
+- Every factual sentence in the report carries the evidence's `source` URL as an inline markdown link `[descrição curta](url)` — not the old `[Fn]` marker. A sentence with no item behind it goes to `## Não verificado` or is dropped. The `## Fontes consultadas` section is a consolidated list of the URLs used, not a numbered index the body points back to.
 - `coverage.failed` from every agent becomes "Fontes não consultadas".
 - `topic: unknown` and `topic: subject` items appear in the subject-level sections, never under a topic.
-- `learned:` lines are recorded where they belong (topic `## Fontes`, the subject's `## Fontes` when it concerns the subject and no single topic, workspace `AGENTS.md`, `config.json → sources`) so the next run starts from more.
+- `learned:` lines are recorded where they belong (`## Fontes relacionadas` for channels/meetings and `## Arquivos e assets` for files; on the topic when it concerns a single topic, on the subject when it concerns the subject at large; workspace `AGENTS.md`; `config.json → sources`) so the next run starts from more.
 
 ## Farol rule
 

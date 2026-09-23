@@ -9,6 +9,8 @@ description: "{{Até 350 caracteres sobre o fórum: para que existe, o que decid
 cadence: "{{semanal | quinzenal | mensal | sob demanda}}"
 trackerBoardKey: "{{ABC ou TBD}}"
 trackerBoardUrl: "{{https://... ou TBD}}"
+topics:
+  - "[[Topic - {{Topic Name}}]]"
 ---
 
 ## Sobre
@@ -27,24 +29,20 @@ trackerBoardUrl: "{{https://... ou TBD}}"
 | --- | --- | --- |
 | {{Topic Name}} | [[Topic - {{Topic Name}}]] | {{Uma linha sobre o tópico}} |
 
-## Fontes
+## Fontes relacionadas
 
 Fontes consultadas pelo `mgr-status-report` em todo report deste fórum, além das fontes de cada tópico. Edite à mão ou use `/mgr-setup --source`; a skill também acrescenta aqui o que descobrir sozinha.
 
-### Canais
+| Nome | URL/Link | Tipo |
+| --- | --- | --- |
+| {{nome do canal do messenger, título da reunião do fórum, etc}} | {{link local para arquivo, nota, canal do messenger, url etc}} | {{nome da fonte/referência usada. Slack, Gmail, Granola, Reunião, etc}} |
 
-| Nome | URL |
-| --- | --- |
-| {{#canal-do-forum}} | {{https://...}} |
+## Arquivos e assets
 
-### Reuniões e transcrições
+{{listagem de arquivos, links, urls, repositórios e outros assets e materiais que podem ser úteis para consulta e análise}}
 
-Uma reunião por item; embaixo, os lugares onde ela pode ser encontrada (Granola, Tactiq, Google Drive, pasta local, Obsidian, Notion...), com o path ou link quando houver. Só os lugares listados aqui e nos tópicos são consultados; se não houver nenhum, o report usa o que a sessão tiver.
+- [Nome do arquivo, título, etc](url/link/path da fonte)
 
-- {{Reunião do fórum}}
-  - {{Granola}}
-  - {{Pasta local: /Users/.../Reuniões/Forum X/}}
+Arquivos, notas ou links locais e privados:
 
-### Arquivos
-
-- {{Path de pasta ou nota (ex.: pasta do fórum no Obsidian) ou URL de documento}}
+- [Nome do arquivo, título, etc](path/local/do/arquivo)

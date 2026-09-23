@@ -5,6 +5,8 @@ role: {{Product Manager | Tech Lead | Head of Product | Head of Tech | Developer
 isPartOf: "[[Team - {{Team Name}}]]"
 description: "{{Até 350 caracteres sobre a pessoa: foco, responsabilidades, contexto relevante para o acompanhamento}}"
 tracked: {{true | false}}
+topics:
+  - "[[Topic - {{Topic Name}}]]"
 ---
 
 ## Sobre
@@ -17,22 +19,20 @@ tracked: {{true | false}}
 | --- | --- | --- |
 | {{Topic Name}} | [[Topic - {{Topic Name}}]] | {{Uma linha sobre o tópico}} |
 
-## Fontes
+## Fontes relacionadas
 
-Fontes consultadas pelo `mgr-status-report` em todo report desta pessoa, além das fontes de cada tópico. Edite à mão ou use `/mgr-setup --source`. Mensagens diretas nunca são lidas; suas notas de 1:1 entram por `Arquivos`.
+Fontes consultadas pelo `mgr-status-report` em todo report desta pessoa, além das fontes de cada tópico. Edite à mão ou use `/mgr-setup --source`. Mensagens diretas nunca são lidas; suas notas de 1:1 entram por `Arquivos e assets`.
 
-### Canais
+| Nome | URL/Link | Tipo |
+| --- | --- | --- |
+| {{nome do canal do messenger, título do 1:1, etc}} | {{link local para arquivo, nota, canal do messenger, url etc}} | {{nome da fonte/referência usada. Slack, Granola, Reunião, etc}} |
 
-| Nome | URL |
-| --- | --- |
-| {{#canal}} | {{https://...}} |
+## Arquivos e assets
 
-### Reuniões e transcrições
+{{listagem de arquivos, links, urls, repositórios e outros assets e materiais que podem ser úteis para consulta e análise}}
 
-- {{1:1 com a pessoa}}
-  - {{Granola}}
-  - {{Pasta local: /Users/.../1on1/Nome/}}
+- [Nome do arquivo, título, etc](url/link/path da fonte)
 
-### Arquivos
+Arquivos, notas ou links locais e privados:
 
-- {{Path de pasta ou nota (ex.: pasta da pessoa no Obsidian)}}
+- [Nome do arquivo, título, etc](path/local/do/arquivo)

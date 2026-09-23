@@ -30,14 +30,16 @@ Read at the step that needs them: `${CLAUDE_PLUGIN_ROOT}/references/evidence.md`
 - First line of the final output is `STATUS: OK | WARN | BLOCKED`.
 - Silent by default: no questions unless `--interactive`. Missing something essential: stop with `BLOCKED` and one line saying what to do.
 - Answer and write in the language the user is writing in. Report headings stay as in the template; they are identifiers.
-- Never invent. No `[Fn]`, no sentence in the body. Never guess a next step or a date.
+- Never invent. Every factual sentence in the body carries the source as an inline markdown link (`[descrição curta](url)`) — never the old `[Fn]` marker, never italic text without a link ("Sync Squad X no Granola"). If a sub-agent returned a meeting evidence without a permalink URL, drop the fact or move it to `## Não verificado`; do not render meeting citations as descriptive italic. Never guess a next step or a date.
 - Every action, pending item, risk and next step names who is accountable. When the evidence names someone (`who:`), use that name. When it does not, write the subject's default accountable, marked as default so the reader can tell it from an assignment stated by the source: team → `<PM> e <Tech Lead> (padrão)`; forum → `<facilitator> (padrão)`; person → `<the person> (padrão)`. Never pick any other person.
+- Every task/issue key from the tracker (`ABC-123`, `PROJ-42` — any `<UPPERCASE>-<number>` shape) that appears anywhere in the report MUST be rendered as a markdown link to the item in the tracker. Build the URL from `config.json → workspaces.<active>.tools.tracker`: for `tool: "jira"`, `<url>/browse/<KEY>` (ex.: `[ABC-123](https://acme.atlassian.net/browse/ABC-123)`); for `tool: "linear"`, `<url>/issue/<KEY>`; other trackers follow their own convention. Never write the key as plain text. Applies ao resumo executivo, bullets de tópicos, ações, entregas, riscos e decisões. When `tools.tracker.url` is missing from `config.json`, set `STATUS: WARN`, deixe as chaves como texto puro e sinalize no summary pedindo pro usuário rodar `/mgr-setup` pra completar; não invente base URL.
+- Every person name that appears anywhere in the report (resumo executivo, tópicos, ações, riscos, decisões) MUST be rendered as a wikilink-style markdown link to the matching Person note: `[Nome da Pessoa](Person - Nome da Pessoa.md)`. The Person file lives at the workspace root. When a Person note does not exist for that name, still write the link with the expected path — the reader will follow it and create the note if needed. Applies to both cited names and default accountables (still include the "(padrão)" suffix outside the link).
 - No customer names, personal data or document numbers in the report.
 - A person's report is about the work that person answers for: topics, deliveries, blockers, decisions. Never about conduct, tone, hours or availability, even when a source mentions them. Direct messages are never a source. The summary of a person's report ends with one line saying it lives in the manager's workspace and is not meant to be shared.
 - Engineering mechanics are not actions. Pull requests, merge requests, code reviews, commits, branches, pipelines and deploy notices never appear as an action, pending item, risk or next step, whatever the source. They may only support a delivery statement about the work item they belong to ("ABC-123 entregue [F4]"), never stand on their own. When a source's whole content is a PR or MR, drop it.
 - Sources are read only by the sub-agents, only with the brief from `evidence.md`.
 - Never rewrite an existing note or report. Reports are new files; topic notes receive edits in the fields and sections named below.
-- Learn as you go. Anything found about the subject's sources that will be useful again - a channel, a meeting, a folder of transcripts, a board convention, a keyword that maps issues to a topic - is recorded where it belongs (topic `## Fontes`; the subject's `## Fontes` when it concerns the subject and no single topic; workspace `AGENTS.md`; `config.json → sources`) in the same run, without asking. The user should not have to hand over sources twice.
+- Learn as you go. Anything found about the subject's sources that will be useful again - a channel, a meeting, a folder of transcripts, a board convention, a keyword that maps issues to a topic - is recorded where it belongs (`## Fontes relacionadas` for channels/meetings and `## Arquivos e assets` for files; on the topic when it concerns a single topic, on the subject when it concerns the subject at large; workspace `AGENTS.md`; `config.json → sources`) in the same run, without asking. The user should not have to hand over sources twice.
 
 ## Step 1 — Read the request
 
@@ -50,13 +52,15 @@ Read at the step that needs them: `${CLAUDE_PLUGIN_ROOT}/references/evidence.md`
 
 ## Step 2 — Load workspace context
 
-Read what the workspace already knows and nothing more: `WS/AGENTS.md` (what matters this period, conventions such as which tracker column means done, registered channels); the subject note (board if any, people - PM and Tech Lead, or facilitator and members, or the person and her team - and `## Fontes`: channels, meetings and files that every report of this subject consults); the subject's topics (every `Topic - *.md` whose `relatedTeam`, `relatedForum` or `relatedPerson` links to this subject - frontmatter, `## Fontes`, current farol; a topic can also belong to other subjects, that is expected); the newest previous report of the subject (frontmatter and farol table only); `config.json` (`referenceFolders` and `sources`, which together are the `localFolders` where notes or transcripts may live).
+Read what the workspace already knows and nothing more: `WS/AGENTS.md` (what matters this period, conventions such as which tracker column means done, registered channels); the subject note (board if any, people - PM and Tech Lead, or facilitator and members, or the person and her team - the `topics` frontmatter list, `## Fontes relacionadas` and `## Arquivos e assets`: channels, meetings and files that every report of this subject consults); the subject's topics (every `Topic - *.md` whose wikilink appears in the subject's `topics` frontmatter list - read the frontmatter, `## Fontes relacionadas`, `## Arquivos e assets`, current `status`; a topic may also appear in other subjects' `topics`, that is expected); the newest previous report of the subject (frontmatter, farol table AND every `#### Ações e Pendências` block from each topic — specifically the `- [ ]` items that were left open, keeping the original responsible, description, source link and the original date + link to the report they came from); `config.json` (`referenceFolders` and `sources`, which together are the `localFolders` where notes or transcripts may live).
+
+The open action items (`- [ ]`) collected from the previous report must be carried over into the corresponding topic's `#### Ações e Pendências` in the new report, on top of any new items identified in the current period. Never re-include items already marked `- [x]` in past reports. If an open item from the previous report is verified as completed in this period's evidence, move it in as `- [x]` with the new evidence link and keep the original date and origin report link.
 
 A subject without topics still gets a report; the topic sections say so and point to `/mgr-setup --topic`.
 
 ## Step 3 — Gather evidence
 
-Read `evidence.md`. Build one brief per selected source with what Step 2 found: `subject` and `subjectType`; the subject's `## Fontes` feeds the brief's `channels`, `meetings` and the head of `localFolders`; each topic's `## Fontes` feeds its own line; `config.json` closes `localFolders`. By type: a team's brief carries its `board`; a forum's carries `board` only when it has one; a person's carries the board of her team (`isPartOf`) plus `assignee: <her name>`. Invoke, in parallel, one call each with the brief as the prompt: `eis-manager-assistant:source-tracker` (skip when there is no board or its key is `TBD`, and say so), `eis-manager-assistant:source-messenger`, `eis-manager-assistant:source-meetings`.
+Read `evidence.md`. Build one brief per selected source with what Step 2 found: `subject` and `subjectType`; the subject's `## Fontes relacionadas` and `## Arquivos e assets` feed the brief's `channels`, `meetings` and the head of `localFolders` (same mapping used for topics: row `Tipo` = messenger → `channels`, `Tipo` = meeting tool → `meetings`, `## Arquivos e assets` bullets → `files`); each topic's `## Fontes relacionadas` and `## Arquivos e assets` feed its own topic line the same way; `config.json` closes `localFolders`. By type: a team's brief carries its `board`; a forum's carries `board` only when it has one; a person's carries the board of her team (`isPartOf`) plus `assignee: <her name>`. Invoke, in parallel, one call each with the brief as the prompt: `eis-manager-assistant:source-tracker` (skip when there is no board or its key is `TBD`, and say so), `eis-manager-assistant:source-messenger`, `eis-manager-assistant:source-meetings`.
 
 Merge what comes back. Drop items without a source. A source whose connector was absent is "not consulted", not "no news". One pass; do not go back for more.
 
@@ -68,12 +72,22 @@ Read `${CLAUDE_PLUGIN_ROOT}/skills/mgr-status-report/templates/Report.md` and fi
 
 ## Step 5 — Update topic notes
 
-For each topic whose farol was decided (not the no-evidence case):
+For **every** topic of the subject — with or without evidence in the period — append one entry to `## Status` under the `### <periodEnd>` subsection (create the subsection if it does not exist; the header format is `### YYYY-MM-DD` matching `periodEnd`). Each entry is:
+
+```
+- **Report**: [[Report - <Subject Name> - <periodEnd>]]
+  - **Farol**: <on_track | in_risk | problem | TBD>
+  - **Descrição**: <up to 80 words, with the source linked inline (`[descrição](url)`) when there is evidence, or "sem evidência no período" when there is none. Nomes de pessoas linkados como `[Nome](Person - Nome.md)`.>
+```
+
+Never sort, rewrite or dedupe existing entries on the same day — just append. Several subjects reporting on the same topic on the same day stack their bullets under the same `### YYYY-MM-DD`.
+
+Also update the frontmatter `status` of the topic, but only when the farol was decided from evidence (not the "sem evidência no período" case):
 
 - `--interactive`: show topic, previous farol, proposed farol and reason; apply what the user confirms.
 - Silent: apply, list every change in the summary under "Farol atualizado sem confirmação", and set `STATUS: WARN`.
 
-Applying touches only frontmatter `status`, the `Farol`, `Descrição` (up to 100 words, with `[Fn]`) and `Último report` lines of `## Status atual`, and one appended line in `## Reports`. Topics without evidence get only the `## Reports` line.
+Never touch `## Contexto`, `## Fontes relacionadas`, `## Arquivos e assets`, `description`, `id`, `created`, `dueDate` or `isPartOf`. The topic note has no `## Reports` section anymore — the report link lives inside `## Status`.
 
 ## Summary
 
@@ -83,7 +97,9 @@ Applying touches only frontmatter `status`, the `Farol`, `Descrição` (up to 10
 
 - Ask anything outside `--interactive`, including the period, the language or the sources.
 - Read a tracker, messenger or meeting tool yourself, or send note bodies and previous reports to a sub-agent.
-- Write a factual sentence without `[Fn]`.
+- Write a factual sentence without an inline source link, or fall back to the old `[Fn]` marker format.
+- Write a person's name in the report without wrapping it as `[Nome](Person - Nome.md)`.
+- Write a tracker key (`ABC-123`, `PROJ-42`) as plain text — always link to the item URL.
 - Report on more than one subject in one run, or create tasks, stories or specs.
-- Overwrite a report, rewrite a note, or change a topic's `dueDate`, `maintainer`, `relatedTeam`, `relatedForum`, `relatedPerson` or `description`.
+- Overwrite a report, rewrite a note, or change a topic's `description`, `id`, `created`, `dueDate` or `isPartOf`.
 - Write outside `WS` and `config.json`, or inside `${CLAUDE_PLUGIN_ROOT}`.

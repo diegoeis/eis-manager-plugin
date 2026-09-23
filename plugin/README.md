@@ -9,6 +9,7 @@ Não cria histórias, tarefas nem especificações técnicas ou de produto.
 | Skill | O que faz |
 | --- | --- |
 | `/mgr-setup` | Cria a pasta de dados, o workspace e as notas de times, fóruns, pessoas e tópicos. Modos `--team`, `--forum`, `--person`, `--topic` e `--source` para estender. |
+| `/mgr-topic` | Cria, lista, remove e arquiva tópicos (`--add`, `--list-topics`, `--remove <Nome>`, `--archive <Nome>`). Ponto único de criação de tópicos. |
 | `/mgr-status-report [sujeito] [--period 7d] [--sources tracker,messenger,meetings] [--data-root /path] [--interactive]` | Gera `Report - <Sujeito> - <data>.md` de um time, fórum ou pessoa acompanhada, a partir do tracker, messenger e reuniões, com cada fato citado, e propõe o farol dos tópicos. Silencioso por padrão; sem `--period` cobre sempre os últimos 7 dias; `--interactive` confirma time e farol. |
 
 ## How to
@@ -35,8 +36,12 @@ O plugin acompanha **sujeitos**: um time, um fórum (reunião recorrente de deci
 | `/mgr-setup --team` | Adiciona um time ao workspace ativo (nome, PM, Tech Lead, descrição, board) e as pessoas dele. Oferece cadastrar tópicos em seguida. |
 | `/mgr-setup --forum` | Adiciona um fórum (nome, facilitador, participantes, cadência). Sem board por padrão. Oferece tópicos em seguida. |
 | `/mgr-setup --person` | Passa a acompanhar uma pessoa já cadastrada (ou nova): marca `tracked: true`, pergunta o escopo do acompanhamento. Oferece tópicos em seguida. |
-| `/mgr-setup --topic` | Adiciona tópicos a um time, fórum ou pessoa acompanhada (nome, maintainer, descrição). Vários de uma vez, um por linha. |
-| `/mgr-setup --source <frase>` | Registra um canal, reunião ou pasta em `## Fontes` do sujeito (ou do tópico, se citado) a partir de uma frase. |
+| `/mgr-setup --topic` | Atalho para adicionar tópicos durante o setup; delega para `/mgr-topic --add`. Vários de uma vez, um por linha. A relação fica no sujeito (frontmatter `topics` + tabela `## Topics`); o tópico não referencia sujeitos. |
+| `/mgr-setup --source <frase>` | Registra um canal, reunião ou pasta em `## Fontes relacionadas` / `## Arquivos e assets` do sujeito (ou do tópico, se citado) a partir de uma frase. |
+| `/mgr-topic --list-topics` | Lista todos os tópicos com status e os sujeitos que os referenciam. |
+| `/mgr-topic --add` | Cria um tópico e o registra em cada sujeito escolhido. Ponto único de criação — outras skills e agentes delegam para cá. |
+| `/mgr-topic --remove <Nome>` | Remove o arquivo do tópico e limpa os wikilinks em cada sujeito. Reports antigos ficam com link quebrado (por design). |
+| `/mgr-topic --archive <Nome>` | Renomeia o arquivo para `Topic - archived - <Nome>.md`, ajusta o título e `status: archived`, e atualiza os wikilinks nos sujeitos para o novo nome. |
 
 O setup nunca lê tracker, messenger ou ferramentas de reunião; ele só guarda URLs. Também não pergunta status, prazo ou fontes ao cadastrar sujeito ou tópico: status e prazo vêm do report; fontes entram por `--source` ou editando a nota.
 
@@ -54,38 +59,35 @@ Casos de uso:
 Pelo comando, descrevendo em prosa:
 
 ```
-/mgr-setup --source adicione a reunião "Sync - RPA" para pegar do Granola e das notas no meu vault /Users/voce/Vault/Reuniões
+/mgr-setup --source adicione a reunião "Sync - Squad X" para pegar do Granola e das notas no meu vault /Users/voce/Vault/Reuniões
 /mgr-setup --source canal #squad-xpto https://acme.slack.com/archives/C0123
 /mgr-setup --source no tópico Checkout v2, a pasta /Users/voce/Vault/Checkout
 ```
 
 A skill descobre o sujeito (pergunta se houver mais de um e nenhum citado), a subseção pelo que a frase descreve, e anexa as linhas na nota certa. Um path de vault novo também é gravado em `config.json → sources`.
 
-Ou edite à mão a seção `## Fontes` de `Team - <Time>.md`, `Forum - <Fórum>.md`, `Person - <Pessoa>.md` ou `Topic - <Tópico>.md`:
+Ou edite à mão as seções `## Fontes relacionadas` e `## Arquivos e assets` de `Team - <Time>.md`, `Forum - <Fórum>.md`, `Person - <Pessoa>.md` ou `Topic - <Tópico>.md`:
 
 ```markdown
-## Fontes
+## Fontes relacionadas
 
-### Canais
+| Nome            | URL/Link                                            | Tipo    |
+| --------------- | --------------------------------------------------- | ------- |
+| #squad-xpto     | https://acme.slack.com/archives/C0123               | Slack   |
+| Weekly Squad X  | Granola                                             | Granola |
+| Weekly Squad X  | /Users/voce/Vault/Reuniões/Squad XPTO/              | Pasta local |
+| Planning quinzenal | https://drive.google.com/drive/folders/...       | Google Drive |
 
-| Nome | URL |
-| --- | --- |
-| #squad-xpto | https://acme.slack.com/archives/C0123 |
+## Arquivos e assets
 
-### Reuniões e transcrições
+- [Repositório do time](https://github.com/acme/squad-xpto)
 
-- Weekly Squad XPTO
-  - Granola
-  - Pasta local: /Users/voce/Vault/Reuniões/Squad XPTO/
-- Planning quinzenal
-  - Google Drive: https://drive.google.com/drive/folders/...
+Arquivos, notas ou links locais e privados:
 
-### Arquivos
-
-- /Users/voce/Vault/Times/Squad XPTO/
+- [Pasta do time no vault](/Users/voce/Vault/Times/Squad XPTO/)
 ```
 
-Fontes do sujeito valem para todo report dele; fontes do tópico só para o tópico. Uma reunião lista embaixo os lugares onde pode ser encontrada; o report procura em cada um e para no primeiro que entrega. A busca por outras reuniões do sujeito fica restrita aos lugares listados; sem nenhum listado, usa tudo que a sessão tiver. Em `Arquivos`, uma pasta do seu vault é lida como notas suas sobre o sujeito (a pasta do time, as suas notas de 1:1 com a pessoa): qualquer nota ali com data ou modificação no período vira evidência.
+Fontes do sujeito valem para todo report dele; fontes do tópico só para o tópico. Uma reunião com vários lugares vira uma linha por lugar com o mesmo `Nome`; o report procura em cada um e para no primeiro que entrega. A busca por outras reuniões do sujeito fica restrita aos lugares listados; sem nenhum listado, usa tudo que a sessão tiver. Em `## Arquivos e assets`, uma pasta do seu vault é lida como notas suas sobre o sujeito (a pasta do time, as suas notas de 1:1 com a pessoa): qualquer nota ali com data ou modificação no período vira evidência.
 
 O próprio report também escreve aqui: canais, reuniões e pastas que os sub-agentes descobrirem sozinhos são anexados na nota, sem perguntar. Mensagens diretas nunca são lidas, para nenhum sujeito.
 
@@ -108,8 +110,8 @@ Flags e prosa valem igual: `/mgr-status-report Squad XPTO últimas duas semanas`
 O que ele produz:
 
 1. `Report - <Sujeito> - <data fim>.md` no workspace (nunca sobrescreve; repete no mesmo dia e sai `-2`, `-3`). Resumo executivo, tabela de farol, seção por tópico, entregas, riscos, decisões, tabela de fontes `F1..Fn` e o que não pôde ser verificado. Toda frase factual carrega `[Fn]`. PRs, MRs, reviews, commits e deploys nunca entram como ação, pendência ou risco; só sustentam uma entrega do item de trabalho a que pertencem. Ações, pendências, riscos e próximos passos têm sempre um responsável: quem a fonte cita ou, sem citação, o responsável padrão do sujeito marcado como tal (time: PM e Tech Lead; fórum: facilitador; pessoa: ela mesma).
-2. Atualiza cada `Topic - *.md` do sujeito: `status` no frontmatter, `## Status atual` e uma linha em `## Reports`.
-3. Anexa em `## Fontes` do sujeito e dos tópicos o que os sub-agentes aprenderam.
+2. Atualiza cada `Topic - *.md` do sujeito: `status` no frontmatter e uma entrada em `## Status` sob a subseção `### <data fim>` (link do report, farol e descrição). Dias existentes recebem novas entradas empilhadas; nada é sobrescrito.
+3. Anexa em `## Fontes relacionadas` e `## Arquivos e assets` do sujeito e dos tópicos o que os sub-agentes aprenderam.
 4. No chat, só a primeira linha `STATUS: OK | WARN | BLOCKED` e um resumo: caminho do report, período, fontes consultadas e puladas, faróis alterados, próximo passo. O conteúdo do report não é despejado no chat.
 
 `WARN` aparece quando uma fonte não foi consultada, um tópico ficou sem evidência, um farol mudou sem confirmação ou o board está `TBD`. `BLOCKED` quando não achou `config.json`, o sujeito é ambíguo em modo silencioso, ou a pessoa citada não está com `tracked: true`.
@@ -132,13 +134,16 @@ Limites: um sujeito por execução; não cria tarefas, histórias ou specs; não
 
 `source-tracker`, `source-messenger` e `source-meetings` leem uma fonte cada, somente leitura, e devolvem evidências no formato de `references/evidence.md`. Só são invocados pelas skills. Se o conector da fonte não existir na sessão, a fonte é marcada como não consultada e o report segue.
 
+`link-keeper` mantém consistência de wikilinks quando uma nota é renomeada ou removida. Invocado por `mgr-topic --archive` (operação `rename`, reescreve `[[Topic - X]]` → `[[Topic - archived - X]]` em todo `WS/*.md`, inclusive reports — é atualização de ponteiro, não edição de conteúdo factual) e por `mgr-topic --remove` (operação `remove`, limpa wikilink dos sujeitos e conta órfãos em reports sem editá-los). Skills futuras que renomearem Team/Forum/Person devem delegar aqui também.
+
 ## Estrutura
 
 ```
 plugin/
   .claude-plugin/plugin.json   manifesto
   skills/                      uma pasta por skill, com SKILL.md e templates/ próprios
-    mgr-setup/templates/         AGENTS.md, CLAUDE.md, Team.md, Forum.md, Person.md, Topic.md
+    mgr-setup/templates/         AGENTS.md, CLAUDE.md, Team.md, Forum.md, Person.md
+    mgr-topic/templates/         Topic.md
     mgr-status-report/templates/ Report.md
   agents/                      sub-agentes invocados pelas skills
   references/                  conhecimento compartilhado (data-root, data-model, evidence)
