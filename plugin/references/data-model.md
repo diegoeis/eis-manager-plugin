@@ -1,6 +1,6 @@
 # Data model: associative notes
 
-State is a flat set of Markdown notes per workspace. Relationships live in YAML frontmatter as wikilinks, not in folder structure. Never create nested folders such as `teams/<team>/topics/`.
+State is a set of Markdown notes per workspace, one folder per note type. Relationships live in YAML frontmatter as wikilinks, never in folder structure: the folder only says what type a note is. Never create folders other than the ones below (no `teams/<team>/topics/`, no per-subject folders).
 
 ## Workspace folder
 
@@ -8,77 +8,103 @@ State is a flat set of Markdown notes per workspace. Relationships live in YAML 
 DATA_ROOT/workspaces/<workspace-slug>/
   AGENTS.md                  workspace narrative (company, context, what matters)
   CLAUDE.md                  one line pointing to AGENTS.md
-  Team - <Team Name>.md
-  Forum - <Forum Name>.md
-  Person - <Person Name>.md
-  Topic - <Topic Name>.md    name only, no owner suffix; a topic is a shared subject and can be linked from several teams, forums or people
-  Report - <Subject Name> - <YYYY-MM-DD>.md written by mgr-status-report, never overwritten
+  teams/
+    <Team Name>.md
+  forums/
+    <Forum Name>.md
+  people/
+    <Person Name>.md
+  topics/
+    <Topic Name>.md          a topic is a shared subject and can be linked from several teams, forums or people
+  reports/
+    <YYYY-MM>/               month the report was generated
+      Report - <Subject Name> - <YYYY-MM-DD>.md   written by mgr-status-report, never overwritten; `--update` adds to it in place
   memory/                    defined in a later slice
 ```
 
-Folder names: kebab-case. File names: `<Type> - <Name>.md`, Title Case, type prefix mandatory. A report carries a second segment (`Report - <Subject Name> - <date>.md`); it is part of the file name and therefore of every wikilink to it. A topic's file name is only `Topic - <Name>.md` — never a subject suffix. Topic names must be unique per workspace; a new topic that reuses an existing name is the same topic (add its wikilink to the new subject's `topics` list instead of creating a second file).
+`WS` is the workspace folder. The folder is what says a note's type (the frontmatter `type` repeats it):
+
+| Type | Folder | File name |
+| --- | --- | --- |
+| team | `WS/teams/` | `<Name>.md` |
+| forum | `WS/forums/` | `<Name>.md` |
+| person | `WS/people/` | `<Name>.md` |
+| topic | `WS/topics/` | `<Name>.md` |
+| report | `WS/reports/<YYYY-MM>/`, where `<YYYY-MM>` is the month of `generated` (the day the report was written), whatever the period it covers | `Report - <Subject Name> - <YYYY-MM-DD>.md`, date = `periodEnd` |
+
+`reports/` is the only folder with subfolders, one per month. The type folders are flat. A skill that writes a note creates its folder when it does not exist yet. Folder names: kebab-case.
+
+File names are the note's `name`, exactly, in Title Case, with no type prefix; the H1 title of the note is the same name. Only reports keep a prefix and a date segment (`Report - <Subject Name> - <date>.md`), which is part of the file name and therefore of every wikilink to it. A topic's file name never carries a subject suffix.
+
+Names are unique across the workspace: no two notes in `teams/`, `forums/`, `people/` and `topics/` share a name, because a wikilink carries no folder. A new topic that reuses an existing topic name is the same topic (add its wikilink to the new subject's `topics` list instead of creating a second file). Any other clash (a topic named like a team, two people with the same name) is not created: ask for a distinct name in an interactive run, stop with `STATUS: BLOCKED` naming the existing note otherwise.
+
+### Workspaces created before 0.3.0
+
+Up to plugin version 0.2.x every note lived directly in `WS` with a type prefix (`Team - X.md`, `Topic - X.md`) and wikilinks carried it (`[[Team - X]]`). A workspace with prefixed notes at its root is a legacy workspace: `mgr-setup` migrates it (see its Step 0). Every other skill that finds such notes stops with `STATUS: BLOCKED` and asks the user to run `/mgr-setup` once.
 
 ## Subjects
 
-A **subject** is anything that owns topics, carries sources and receives status reports: a `Team`, a `Forum` (a recurring decision or alignment meeting with participants, not a team) or a `Person` (a direct report the user follows individually; `tracked: true`). The three share the same body sections `## Topics` and `## Fontes`, so `mgr-status-report` treats them alike; what differs is listed per type below. **The subject owns its topic list**: every subject note has a `topics: [...]` list in its frontmatter (source of truth for programmatic reads) and a `## Topics` table in the body (for human reading). A `Topic - *.md` never lists its subjects — the relation lives on the subject side.
+A **subject** is anything that owns topics, carries sources and receives status reports: a team, a forum (a recurring decision or alignment meeting with participants, not a team) or a person (a direct report the user follows individually; `tracked: true`). The three share the same body sections `## Topics` and `## Fontes`, so `mgr-status-report` treats them alike; what differs is listed per type below. **The subject owns its topic list**: every subject note has a `topics: [...]` list in its frontmatter (source of truth for programmatic reads) and a `## Topics` table in the body (for human reading). A topic note never lists its subjects — the relation lives on the subject side.
 
 ## Wikilinks
 
-`[[X]]` resolves to the file `X.md` in the same workspace folder, exactly like Obsidian. Links always carry the full file name with prefix: `"[[Team - Squad X]]"`, `"[[Forum - Comitê de Produto]]"`, `"[[Person - Ana Souza]]"`, `"[[Topic - Checkout v2]]"`. Never resolve by the `name` field, never infer a prefix. A link to a file that does not exist is a label; do not fail on it. `isPartOf` on a team or forum points to the workspace, which has no note, so it is always a label.
+`[[X]]` resolves to the note `X.md` in the workspace, exactly like Obsidian (which resolves by file name, whatever the folder): look for it in `teams/`, `forums/`, `people/` and `topics/`, or, for `[[Report - ...]]`, in `reports/*/`. Wikilinks carry the file name only, never a folder or a type prefix: `"[[Squad X]]"`, `"[[Comitê de Produto]]"`, `"[[Ana Souza]]"`, `"[[Checkout v2]]"`, `"[[Report - Squad X - 2026-09-08]]"`. The type of the target is the folder where it was found. Never resolve by the `name` field alone. A link to a file that does not exist is a label; do not fail on it. `isPartOf` on a team or forum points to the workspace, which has no note, so it is always a label.
+
+Markdown links to a person (`[Nome](...)`, used in reports and in topic `## Status` descriptions so names are clickable outside Obsidian too) are relative to the note that contains them: from a report, `[Nome](../../people/Nome.md)`; from a topic, `[Nome](../people/Nome.md)`. A markdown link from a report to another report points to the month folder where that report actually is: `[YYYY-MM-DD](../<YYYY-MM>/Report - <Subject Name> - <YYYY-MM-DD>.md)`.
 
 ## Frontmatter
 
 Templates with the full body live inside the skill that creates the note: `${CLAUDE_PLUGIN_ROOT}/skills/mgr-setup/templates/` (`AGENTS.md`, `CLAUDE.md`, `Team.md`, `Forum.md`, `Person.md`, `Topic.md`) and `${CLAUDE_PLUGIN_ROOT}/skills/mgr-status-report/templates/Report.md`. Always create notes from them. `description` is at most 350 characters. Dates are `YYYY-MM-DD`. A field whose value is not yet known and is required holds the literal `TBD`.
 
-**Person** (`Person - <Name>.md`)
+**Person** (`people/<Name>.md`)
 
 ```yaml
 name: "Ana Souza"
 type: person
 role: Product Manager        # Product Manager | Tech Lead | Head of Product | Head of Tech | Developer | Designer | Delivery Manager
-isPartOf: "[[Team - Squad X]]"   # omit when the person has no known team (e.g. a forum participant)
+isPartOf: "[[Squad X]]"   # omit when the person has no known team (e.g. a forum participant)
 description: "..."
 tracked: false               # true when the user follows this person as a subject (topics, sources, reports)
-topics: []                   # only when tracked: true; wikilinks of every Topic - *.md the person answers for
+topics: []                   # only when tracked: true; wikilinks of every topics/*.md the person answers for
 ```
 
 A person created as a team member has `tracked: false` and no `topics` field. `mgr-setup --person` sets `tracked: true`, initializes `topics: []` and adds the body sections. Default accountable on a person's report: the person.
 
-**Forum** (`Forum - <Name>.md`)
+**Forum** (`forums/<Name>.md`)
 
 ```yaml
 name: "Comitê de Produto"
 type: forum
-facilitator: "[[Person - Ana Souza]]"
+facilitator: "[[Ana Souza]]"
 members:
-  - "[[Person - João Lima]]"
+  - "[[João Lima]]"
 isPartOf: "[[Workspace Name]]"
 description: "..."
 cadence: "quinzenal"
 trackerBoardKey: "TBD"       # a forum rarely has a board; TBD skips the tracker
 trackerBoardUrl: "TBD"
-topics: []                   # wikilinks of every Topic - *.md handled by this forum
+topics: []                   # wikilinks of every topics/*.md handled by this forum
 ```
 
 Default accountable on a forum's report: the facilitator.
 
-**Team** (`Team - <Name>.md`)
+**Team** (`teams/<Name>.md`)
 
 ```yaml
 name: "Squad X"
 type: team
-productManager: "[[Person - Ana Souza]]"
-techLead: "[[Person - João Lima]]"
+productManager: "[[Ana Souza]]"
+techLead: "[[João Lima]]"
 isPartOf: "[[Workspace Name]]"
 description: "..."
 trackerBoardKey: "ABC"
 trackerBoardUrl: "https://..."
-topics: []                   # wikilinks of every Topic - *.md this team works on
+topics: []                   # wikilinks of every topics/*.md this team works on
 ```
 
 Default accountable on a team's report: Product Manager and Tech Lead.
 
-**Topic** (`Topic - <Name>.md`)
+**Topic** (`topics/<Name>.md`)
 
 ```yaml
 type: topic
@@ -88,28 +114,29 @@ status: on_track             # on_track | in_risk | problem | TBD
 description: "..."
 created: 2026-09-01
 # Optional, only when explicitly requested by the user:
-# isPartOf: "[[Topic - Parent Topic]]"
+# isPartOf: "[[Parent Topic]]"
 # dueDate: 2026-12-15
 ```
 
 A topic has **no** back-reference to teams, forums or people, and **no** maintainer. Which subjects a topic belongs to is inferred from every subject whose `topics` list contains this topic's wikilink. `id` is the slug of `name` (lowercase, non-alphanumeric replaced with `-`, trimmed). `isPartOf` and `dueDate` are added only when the user asks for them; do not initialize them as `TBD`.
 
-**Report** (`Report - <Subject Name> - <YYYY-MM-DD>.md`, date = `periodEnd`)
+**Report** (`reports/<YYYY-MM of generated>/Report - <Subject Name> - <YYYY-MM-DD>.md`, date = `periodEnd`)
 
 ```yaml
 name: "Squad X - 2026-09-08"
 type: report
 reportType: status
 subjectType: team            # team | person | forum
-subject: "[[Team - Squad X]]"
+subject: "[[Squad X]]"
 periodStart: 2026-09-02
 periodEnd: 2026-09-08
 generated: 2026-09-08
 topics:
-  - "[[Topic - Checkout v2]]"
+  - "[[Checkout v2]]"
 sourcesConsulted: [tracker, messenger]
-sourcesSkipped: [meetings]
+sourcesSkipped: [meetings]   # sourcesConsulted also takes `provided` when an update used files or text from the user
 previousReport: "[[Report - Squad X - 2026-09-01]]"   # omit on the first report
+updated: 2026-09-10          # only after `mgr-status-report --update`; date of the last update
 ```
 
 ## Body sections
@@ -130,18 +157,18 @@ Everything that is not an identifier (channels, meetings, docs, links) goes in t
 
 - Skills that update a note edit only the target section or field. Never rewrite a whole existing note.
 - **Adding a topic to a subject**: append its wikilink to the subject's `topics` frontmatter list AND append a row to the subject's `## Topics` table. The two must stay in sync. Never touch the topic note's frontmatter for this — the topic has no back-reference.
-- **Adding a person listed in a team's `## Pessoas e papéis`** also creates `Person - <Name>.md` if missing.
+- **Adding a person listed in a team's `## Pessoas e papéis`** also creates `people/<Name>.md` if missing.
 - **Writing a report** touches each related topic note in two places only: the frontmatter `status` (new farol) and one appended entry under `## Status` in the `### <periodEnd>` subsection (creating the subsection if it does not exist). Each entry is a bullet: `- **Report**: [[Report - <Subject Name> - <periodEnd>]]` followed by nested `**Farol**` and `**Descrição**` lines. It never touches `## Contexto`, `## Fontes relacionadas`, `## Arquivos e assets`, `description`, `id`, `created`, `dueDate` or `isPartOf`.
 - On a team, forum or person note the report skill may only append rows to `## Fontes relacionadas` or bullets to `## Arquivos e assets` (what the sub-agents learned).
-- A rerun of a report on the same day creates `... - <date>-2.md` instead of overwriting the previous one. Reports can be edited afterwards when necessary (e.g. `link-keeper` rewriting a wikilink target on rename), but skills should avoid touching factual content (`[Fn]`, farol, evidence text).
-- Latest report of a subject: the `Report - <Subject Name> - *.md` with the greatest date in the file name.
+- A rerun of a report on the same day creates `... - <date>-2.md` in the current month folder instead of overwriting the previous one. Reports can be edited afterwards when necessary (e.g. `link-keeper` rewriting a wikilink target on rename), but skills should avoid touching factual content (`[Fn]`, farol, evidence text). The exception is `mgr-status-report --update`: it adds facts from material the user handed over, may flip `- [ ]` to `- [x]`, move items out of `## Não verificado`, recompute a topic's farol and adjust the executive summary, and sets `updated`. It never deletes or rewords a sourced fact, never changes period, subject, `generated`, `previousReport` or the file name. A topic whose farol changed gets an extra `## Status` entry marked `(atualizado em <date>)`.
+- Latest report of a subject: the `Report - <Subject Name> - *.md` with the greatest date in the file name, across every `WS/reports/*/` folder.
 
 ## Inferences
 
 - **Topics of a subject**: the `topics` frontmatter list of the subject note (source of truth). The `## Topics` table mirrors it.
-- **Subjects of a topic**: every `Team - *.md`, `Forum - *.md` and `Person - *.md` (`tracked: true`) whose `topics` list contains this topic's wikilink. Read the frontmatter, never the file name.
-- **Subjects of the workspace**: every `Team - *.md`, `Forum - *.md`, and `Person - *.md` with `tracked: true`.
-- **People of a team**: every `Person - *.md` whose `isPartOf` links to it. A person without `isPartOf` belongs to no team (forum participant, external).
+- **Subjects of a topic**: every `teams/*.md`, `forums/*.md` and `people/*.md` (`tracked: true`) whose `topics` list contains this topic's wikilink. Read the frontmatter, never the file name.
+- **Subjects of the workspace**: every note in `WS/teams/` and `WS/forums/`, and every note in `WS/people/` with `tracked: true`.
+- **People of a team**: every `people/*.md` whose `isPartOf` links to it. A person without `isPartOf` belongs to no team (forum participant, external).
 - **Project tree**: `isPartOf` between topics (when present).
 
 Section headings are in Portuguese by design; they are stable identifiers and are never translated, whatever language the user writes in.

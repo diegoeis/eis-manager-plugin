@@ -50,7 +50,7 @@ Todo estado é texto simples: JSON só para `config.json`; tudo o mais é Markdo
 
 ## Modelo de dados: associativo, não estrutural
 
-As relações entre workspace, times, tópicos e pessoas vivem no frontmatter, via wikilinks `[[Nome]]`. Pastas não carregam significado além de separar workspaces. Nunca criar hierarquias como `team/topic/`.
+As relações entre workspace, times, tópicos e pessoas vivem no frontmatter, via wikilinks `[[Nome]]`. Pastas só dizem o tipo da nota: uma pasta por tipo dentro do workspace (`teams/`, `forums/`, `people/`, `topics/`, `reports/`). Só `reports/` tem subpastas, uma por mês (`reports/YYYY-MM/`, pelo mês em que o report foi gerado, não pelo período). Nunca criar outras hierarquias, como `teams/<time>/topics/` ou pastas por sujeito.
 
 ```
 <raiz>/                              # pasta nomeada pelo usuário; default <conectada>/manager-assistant/
@@ -59,17 +59,17 @@ As relações entre workspace, times, tópicos e pessoas vivem no frontmatter, v
     <workspace-slug>/                # kebab-case
       AGENTS.md                      # narrativa do workspace (empresa, contexto, o que importa)
       CLAUDE.md                      # só aponta para AGENTS.md
-      Team - <Team Name>.md
-      Forum - <Forum Name>.md
-      Person - <Person Name>.md
-      Topic - <Topic Name>.md            # só o nome; não tem dono único, pode se relacionar com vários times, fóruns ou pessoas
-      Report - <Subject Name> - <YYYY-MM-DD>.md # gerado por mgr-status-report; nunca sobrescrito
+      teams/<Team Name>.md
+      forums/<Forum Name>.md
+      people/<Person Name>.md
+      topics/<Topic Name>.md         # só o nome; não tem dono único, pode se relacionar com vários times, fóruns ou pessoas
+      reports/<YYYY-MM>/Report - <Subject Name> - <YYYY-MM-DD>.md # gerado por mgr-status-report; nunca sobrescrito (só `--update` acrescenta, editando no lugar)
       memory/                        # Fatia 3
 ```
 
 Templates customizados por workspace ficam no backlog; hoje só existem os de `plugin/skills/<nome>/templates/`.
 
-Nomes de pasta em kebab-case. Nomes de arquivo em Title Case com prefixo do tipo: `<Type> - <Name>.md`.
+Nomes de pasta em kebab-case. Nomes de arquivo em Title Case, iguais ao `name` e ao H1 da nota, sem prefixo de tipo: a pasta já diz o tipo. Só reports têm prefixo: `Report - <Subject Name> - <YYYY-MM-DD>.md`. Como o wikilink não leva pasta, nomes são únicos no workspace inteiro (entre times, fóruns, pessoas e tópicos); a skill que cria uma nota com nome já usado pergunta outro ou para com `BLOCKED`. Wikilink nunca leva pasta; links markdown para pessoas em reports e tópicos são relativos (`../../people/...` de um report, `../people/...` de um tópico). Workspaces anteriores à 0.3.0 têm as notas na raiz, com prefixo; o `mgr-setup` migra (move, tira o prefixo e pede ao `link-keeper` para reescrever os links), as outras skills param com `BLOCKED`.
 
 ### Sujeitos
 
@@ -79,15 +79,15 @@ Report de pessoa é sobre os tópicos e entregas que ela responde por, nunca sob
 
 ### Resolução de wikilinks
 
-Como no Obsidian: `[[X]]` resolve para o arquivo `X.md`, e só isso. O link carrega sempre o nome completo do arquivo, com prefixo: `relatedTeam: ["[[Team - Squad X]]"]`, `maintainer: "[[Person - Nome]]"`. Nunca resolver pelo campo `name`, nunca inferir prefixo. Se o arquivo não existir, o link é um rótulo e a skill segue sem erro. Exceção: `isPartOf` de um time ou fórum aponta para o workspace, que não tem nota; é só rótulo.
+Como no Obsidian: `[[X]]` resolve para o arquivo `X.md`, e só isso. O link carrega o nome do arquivo, sem pasta e sem prefixo de tipo (exceto reports): `productManager: "[[Ana Souza]]"`, `topics: ["[[Checkout v2]]"]`, `previousReport: "[[Report - Squad X - 2026-09-08]]"`. O tipo do alvo é a pasta onde o arquivo está. Nunca resolver pelo campo `name`. Se o arquivo não existir, o link é um rótulo e a skill segue sem erro. Exceção: `isPartOf` de um time ou fórum aponta para o workspace, que não tem nota; é só rótulo.
 
 Um tópico não tem dono único: `relatedTeam`, `relatedForum` e `relatedPerson` são três listas independentes (cada uma pode ter zero, um ou vários links) e juntas decidem em quais sujeitos o tópico aparece. `maintainer` é só a pessoa responsável no dia a dia, sem relação com essas listas.
 
 ### Inferências que o modelo permite
 
-- Tópicos de um sujeito: todos os `Topic - *.md` cujo `relatedTeam`, `relatedForum` ou `relatedPerson` aponte pra ele — sempre pelo frontmatter, nunca pelo nome do arquivo.
-- Sujeitos do workspace: `Team - *.md`, `Forum - *.md` e `Person - *.md` com `tracked: true`.
-- Pessoas de um time: todos os `Person - *.md` com `isPartOf` apontando pra ele.
+- Tópicos de um sujeito: todos os `topics/*.md` cujo `relatedTeam`, `relatedForum` ou `relatedPerson` aponte pra ele — sempre pelo frontmatter, nunca pelo nome do arquivo.
+- Sujeitos do workspace: `teams/*.md`, `forums/*.md` e `people/*.md` com `tracked: true`.
+- Pessoas de um time: todos os `people/*.md` com `isPartOf` apontando pra ele.
 - Times envolvidos num tópico: sua lista `relatedTeam`.
 - Árvore de projetos: `isPartOf` entre tópicos.
 
@@ -99,7 +99,7 @@ Templates completos em `plugin/skills/mgr-setup/templates/`. Campos obrigatório
 - **Forum**: `name`, `type: forum`, `facilitator`, `members`, `isPartOf`, `description`, `cadence`, `trackerBoardKey`, `trackerBoardUrl` (`TBD` quando não há board).
 - **Team**: `name`, `type: team`, `productManager`, `techLead`, `isPartOf`, `description`, `trackerBoardKey`, `trackerBoardUrl`.
 - **Topic**: `name`, `type: topic`, `status` (`on_track | in_risk | problem`), `maintainer`, `isPartOf`, `description`, `relatedTeam`, `relatedForum`, `relatedPerson`, `created`, `dueDate`. Sem dono único: `relatedTeam`/`relatedForum`/`relatedPerson` são listas independentes, cada uma com zero, um ou vários links.
-- **Report**: `name`, `type: report`, `reportType` (`status`), `subjectType` (`team | person | forum`), `subject`, `periodStart`, `periodEnd`, `generated`, `topics`, `sourcesConsulted`, `sourcesSkipped`, `previousReport` (omitido no primeiro).
+- **Report**: `name`, `type: report`, `reportType` (`status`), `subjectType` (`team | person | forum`), `subject`, `periodStart`, `periodEnd`, `generated`, `topics`, `sourcesConsulted`, `sourcesSkipped`, `previousReport` (omitido no primeiro), `updated` (só depois de um `--update`).
 
 `description` tem até 350 caracteres. Campos que não são identificadores (canais, reuniões, docs, links) vão no corpo, em seções fixas.
 
@@ -113,7 +113,7 @@ Seções H2 fixas, na ordem, para extração por heading:
 - **Topic**: Contexto; Status atual (farol, descrição de até 100 palavras, link do último report); Fontes (canais com nome e URL, reuniões/transcrições, arquivos); Reports (links dos reports gerados).
 - **Report**: Resumo executivo; Farol por tópico; Por tópico; Entregas no período; Riscos e pontos de atenção; Decisões e pendências; Fontes consultadas; Não verificado. Toda frase factual termina com `[Fn]` apontando para uma linha de Fontes consultadas.
 
-Skills que gravam nessas notas editam só a seção alvo, nunca reescrevem o arquivo.
+Skills que gravam nessas notas editam só a seção alvo, nunca reescrevem o arquivo. Report nunca é regerado nem sobrescrito; a exceção única é `mgr-status-report --update`, que acrescenta fatos do material entregue pelo usuário no próprio report, sem apagar nem reescrever fato que já tem fonte.
 
 ## Leitura de fontes externas
 

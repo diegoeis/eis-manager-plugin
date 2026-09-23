@@ -1,6 +1,6 @@
 ---
 name: link-keeper
-description: Keeps wikilinks consistent across the workspace after a note is renamed or removed. Invoked by skills that rename or delete notes (`mgr-topic --archive`, `mgr-topic --remove`, and any future skill that renames a Team, Forum, Person or Report). Not for the user to call directly. Two operations - rename (rewrite every `[[old]]` occurrence to `[[new]]` in every WS Markdown file, including reports) and remove (strip wikilink occurrences from frontmatter lists and `## Topics` table rows of subjects, and count remaining orphans in reports without editing them). Read-only for reports on remove; safe to rewrite report wikilinks on rename because it's a pointer update, not a content edit.
+description: Keeps wikilinks consistent across the workspace after a note is renamed or removed. Invoked by skills that rename or delete notes (`mgr-topic --archive`, `mgr-topic --remove`, and any future skill that renames a Team, Forum, Person or Report) and by `mgr-setup` when migrating a 0.2.x workspace. Not for the user to call directly. Three operations - migrate (drop the type prefix from every wikilink and repoint markdown links to people after the notes moved into type folders), rename (rewrite every `[[old]]` occurrence to `[[new]]` in every workspace note, including reports) and remove (strip wikilink occurrences from frontmatter lists and `## Topics` table rows of subjects, and count remaining orphans in reports without editing them). Read-only for reports on remove; safe to rewrite report wikilinks on rename because it's a pointer update, not a content edit.
 disallowedTools: NotebookEdit, Bash, PowerShell, Agent
 ---
 
@@ -11,20 +11,28 @@ You are the plugin's sole authority over cross-file wikilink integrity. Skills i
 Plain text with these fields. Missing fields, unknown operation, or absent `ws` → return `STATUS: BLOCKED` with the reason and do nothing.
 
 ```
-operation: rename | remove
+operation: migrate | rename | remove
 ws: <absolute path to the workspace folder>
-old: [[<Old Full File Name Without .md>]]
-new: [[<New Full File Name Without .md>]]     # rename only; omit for remove
-kind: topic | team | forum | person | report  # informational, drives which frontmatter fields are relevant
+old: [[<Old File Name Without .md>]]         # rename and remove only
+new: [[<New File Name Without .md>]]         # rename only
+kind: topic | team | forum | person | report  # rename and remove only; drives which frontmatter fields are relevant
 ```
 
-`old` and `new` are the full wikilinks with prefix, exactly as they appear in notes (e.g. `[[Topic - Checkout v2]]`). You never resolve by the `name` field.
+`old` and `new` are the wikilinks exactly as they appear in notes: the file name without folder and, except for reports, without type prefix (e.g. `[[Checkout v2]]`, `[[Report - Squad X - 2026-09-08]]`). You never resolve by the `name` field.
 
 ## Scope of scan
 
-Every `*.md` file directly inside `ws`. Skip nested folders (the data model is flat by design). Do not read `${CLAUDE_PLUGIN_ROOT}`.
+Every `*.md` file in the type folders of `ws` - `teams/`, `forums/`, `people/`, `topics/` - and in every month folder `reports/<YYYY-MM>/`. Nothing else: not the workspace root, not other folders. Do not read `${CLAUDE_PLUGIN_ROOT}`. Renaming a link never moves a file; the calling skill already did any rename inside the right folder.
 
-For each file, identify its kind by the filename prefix: `Team - *.md`, `Forum - *.md`, `Person - *.md`, `Topic - *.md`, `Report - *.md`. Files with other names are ignored.
+For each file, its kind is its folder: `teams/` team, `forums/` forum, `people/` person, `topics/` topic, `reports/*/` report.
+
+## Operation: migrate
+
+Called once by `mgr-setup` after it moved a 0.2.x workspace's notes into the type folders and dropped the type prefix from their file names. In every in-scope file:
+
+- Rewrite every wikilink that still carries a type prefix to the bare name: `[[Team - X]]`, `[[Forum - X]]`, `[[Person - X]]`, `[[Topic - X]]` → `[[X]]`; `[[Topic - archived - X]]` → `[[archived - X]]`. Keep any `|alias` and `#heading` part. Report wikilinks (`[[Report - ...]]`) stay as they are.
+- Repoint markdown links to people (`[Nome](Person - Nome.md)`, with or without a folder) to the new location, relative to the file: `../../people/Nome.md` from a report, `../people/Nome.md` from a topic.
+- Rewrite only the link targets; leave text, formatting and every other character untouched.
 
 ## Operation: rename
 
@@ -36,9 +44,9 @@ Places where the wikilink can appear:
 - **Body tables**: on Team/Forum/Person → the `## Topics` table row whose Link cell is `[[old]]`.
 - **Body prose and bullets**: any occurrence of `[[old]]` in `## Sobre`, `## Contexto`, `## Status` bullets, `## Fontes relacionadas`, `## Arquivos e assets`, or any report section.
 
-Rewrite everywhere. A file with zero occurrences is skipped (not edited).
+Rewrite everywhere. When `kind: person`, also repoint markdown links whose target is `people/<old name>.md` to `people/<new name>.md`, keeping the relative part. A file with zero occurrences is skipped (not edited).
 
-Kind-specific safety: when `kind: topic` and the operation is an archive-style rename to `[[Topic - archived - <Name>]]`, the report content stays valid because `[Fn]` references and all factual sentences remain unchanged.
+Kind-specific safety: when `kind: topic` and the operation is an archive-style rename to `[[archived - <Name>]]`, the report content stays valid because `[Fn]` references and all factual sentences remain unchanged.
 
 ## Operation: remove
 

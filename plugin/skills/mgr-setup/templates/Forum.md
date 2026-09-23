@@ -1,17 +1,19 @@
 ---
 name: "{{Forum Name}}"
 type: forum
-facilitator: "[[Person - {{Facilitator Name}}]]"
+facilitator: "[[{{Facilitator Name}}]]"
 members:
-  - "[[Person - {{Member Name}}]]"
+  - "[[{{Member Name}}]]"
 isPartOf: "[[{{Workspace Name}}]]"
 description: "{{Até 350 caracteres sobre o fórum: para que existe, o que decide, quem participa}}"
 cadence: "{{semanal | quinzenal | mensal | sob demanda}}"
 trackerBoardKey: "{{ABC ou TBD}}"
 trackerBoardUrl: "{{https://... ou TBD}}"
 topics:
-  - "[[Topic - {{Topic Name}}]]"
+  - "[[{{Topic Name}}]]"
 ---
+
+# {{Forum Name}}
 
 ## Sobre
 
@@ -21,13 +23,13 @@ topics:
 
 | Nome | Papel no fórum | Descrição |
 | --- | --- | --- |
-| [[Person - {{Person Name}}]] | {{Facilitador | Participante | Convidado}} | {{Uma linha sobre o que a pessoa representa ali}} |
+| [[{{Person Name}}]] | {{Facilitador | Participante | Convidado}} | {{Uma linha sobre o que a pessoa representa ali}} |
 
 ## Topics
 
 | Nome | Link | Descrição |
 | --- | --- | --- |
-| {{Topic Name}} | [[Topic - {{Topic Name}}]] | {{Uma linha sobre o tópico}} |
+| {{Topic Name}} | [[{{Topic Name}}]] | {{Uma linha sobre o tópico}} |
 
 ## Fontes relacionadas
 

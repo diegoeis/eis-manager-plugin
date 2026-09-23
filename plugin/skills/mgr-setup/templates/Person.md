@@ -2,12 +2,14 @@
 name: "{{Person Name}}"
 type: person
 role: {{Product Manager | Tech Lead | Head of Product | Head of Tech | Developer | Designer | Delivery Manager}}
-isPartOf: "[[Team - {{Team Name}}]]"
+isPartOf: "[[{{Team Name}}]]"
 description: "{{Até 350 caracteres sobre a pessoa: foco, responsabilidades, contexto relevante para o acompanhamento}}"
 tracked: {{true | false}}
 topics:
-  - "[[Topic - {{Topic Name}}]]"
+  - "[[{{Topic Name}}]]"
 ---
+
+# {{Person Name}}
 
 ## Sobre
 
@@ -17,7 +19,7 @@ topics:
 
 | Nome | Link | Descrição |
 | --- | --- | --- |
-| {{Topic Name}} | [[Topic - {{Topic Name}}]] | {{Uma linha sobre o tópico}} |
+| {{Topic Name}} | [[{{Topic Name}}]] | {{Uma linha sobre o tópico}} |
 
 ## Fontes relacionadas
 

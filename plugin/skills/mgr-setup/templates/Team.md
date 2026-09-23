@@ -1,15 +1,17 @@
 ---
 name: "{{Team Name}}"
 type: team
-productManager: "[[Person - {{Product Manager Name}}]]"
-techLead: "[[Person - {{Tech Lead Name}}]]"
+productManager: "[[{{Product Manager Name}}]]"
+techLead: "[[{{Tech Lead Name}}]]"
 isPartOf: "[[{{Workspace Name}}]]"
 description: "{{Até 350 caracteres sobre o time: missão, escopo de produto/tecnologia, o que entrega}}"
 trackerBoardKey: "{{ABC}}"
 trackerBoardUrl: "{{https://...}}"
 topics:
-  - "[[Topic - {{Topic Name}}]]"
+  - "[[{{Topic Name}}]]"
 ---
+
+# {{Team Name}}
 
 ## Sobre
 
@@ -19,13 +21,13 @@ topics:
 
 | Nome | Role | Descrição |
 | --- | --- | --- |
-| [[Person - {{Person Name}}]] | {{Product Manager}} | {{Uma linha sobre foco e responsabilidade da pessoa no time}} |
+| [[{{Person Name}}]] | {{Product Manager}} | {{Uma linha sobre foco e responsabilidade da pessoa no time}} |
 
 ## Topics
 
 | Nome | Link | Descrição |
 | --- | --- | --- |
-| {{Topic Name}} | [[Topic - {{Topic Name}}]] | {{Uma linha sobre o tópico}} |
+| {{Topic Name}} | [[{{Topic Name}}]] | {{Uma linha sobre o tópico}} |
 
 ## Fontes relacionadas
 

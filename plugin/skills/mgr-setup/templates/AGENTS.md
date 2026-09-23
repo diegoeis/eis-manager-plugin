@@ -8,7 +8,7 @@ created: {{YYYY-MM-DD}}
 
 # {{Workspace Name}}
 
-Este arquivo é o contexto narrativo do workspace. Qualquer agente que trabalhe com este workspace deve ler este arquivo primeiro e depois as notas `Team - *.md`, `Forum - *.md`, `Person - *.md` e `Topic - *.md` desta pasta. As relações entre elas estão no frontmatter, em wikilinks que apontam para o nome do arquivo.
+Este arquivo é o contexto narrativo do workspace. Qualquer agente que trabalhe com este workspace deve ler este arquivo primeiro e depois as notas de cada tipo, uma pasta por tipo: `teams/`, `forums/`, `people/` e `topics/`. Os reports ficam em `reports/AAAA-MM/`. As relações entre elas estão no frontmatter, em wikilinks que apontam para o nome do arquivo.
 
 ## Sobre
 
@@ -33,7 +33,7 @@ Times, fóruns e pessoas que recebem status report. Uma linha por sujeito.
 
 | Tipo | Nome | Link | Descrição |
 | --- | --- | --- | --- |
-| {{team | forum | person}} | {{Name}} | [[{{Team | Forum | Person}} - {{Name}}]] | {{Uma linha}} |
+| {{team | forum | person}} | {{Name}} | [[{{Name}}]] | {{Uma linha}} |
 
 ## Convenções e armadilhas
 

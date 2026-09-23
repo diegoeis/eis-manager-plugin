@@ -4,7 +4,7 @@ Plugin para Claude (Claude Code e Cowork) que ajuda Heads, Leads, PMs e Tech Lea
 
 Ele junta o que está espalhado entre project tracker, messenger, reuniões e as suas próprias notas, e gera status reports em que toda afirmação tem fonte. O que não tem fonte fica marcado como não verificado ou fica de fora.
 
-> Versão atual: `0.2.0` (ver [`plugin/.claude-plugin/plugin.json`](plugin/.claude-plugin/plugin.json)).
+> Versão atual: `0.3.0` (ver [`plugin/.claude-plugin/plugin.json`](plugin/.claude-plugin/plugin.json)).
 
 ## O problema
 
@@ -27,9 +27,9 @@ Este plugin acompanha **sujeitos** (times, fóruns, pessoas) e os **tópicos** d
 | **Sujeito** | O que recebe report: um **time** (`Team`), um **fórum** (`Forum`, reunião recorrente de decisão, como um comitê de produto) ou uma **pessoa** acompanhada individualmente (`Person` com `tracked: true`). Os três funcionam do mesmo jeito. |
 | **Tópico** | Uma iniciativa, projeto ou tema com farol (`on_track`, `in_risk`, `problem`). Não tem dono único: vários sujeitos podem apontar para o mesmo tópico. |
 | **Fontes** | Canais, reuniões, boards e pastas registrados em cada sujeito e tópico. O plugin aprende novas fontes enquanto trabalha e as grava sozinho. |
-| **Report** | `Report - <Sujeito> - <data>.md`, gerado a partir de evidências e nunca sobrescrito. |
+| **Report** | `reports/<AAAA-MM>/Report - <Sujeito> - <data>.md`, gerado a partir de evidências e nunca regerado; `--update` acrescenta informações novas no próprio arquivo. |
 
-As relações entre notas vivem no frontmatter YAML, como wikilinks no estilo Obsidian (`[[Team - Squad X]]`). A estrutura de pastas não carrega significado.
+As relações entre notas vivem no frontmatter YAML, como wikilinks no estilo Obsidian (`[[Squad X]]`). As pastas só separam as notas por tipo (`teams/`, `forums/`, `people/`, `topics/`, `reports/<AAAA-MM>/`); nenhuma relação depende delas.
 
 ## Skills
 
@@ -37,7 +37,7 @@ As relações entre notas vivem no frontmatter YAML, como wikilinks no estilo Ob
 | --- | --- |
 | `/mgr-setup` | Cria a pasta de dados, o `config.json`, o workspace e as notas de times, fóruns, pessoas e tópicos. Modos: `--workspace`, `--team`, `--forum`, `--person`, `--topic`, `--source <frase>`. |
 | `/mgr-topic` | Único ponto de criação e manutenção de tópicos: `--list-topics`, `--add`, `--remove <Nome>`, `--archive <Nome>`. |
-| `/mgr-status-report` | Gera o report de um sujeito para um período, com fatos citados, e atualiza o farol dos tópicos. Flags: `--period`, `--sources`, `--data-root`, `--interactive`. |
+| `/mgr-status-report` | Gera o report de um sujeito para um período, com fatos citados, e atualiza o farol dos tópicos. Flags: `--period`, `--sources`, `--data-root`, `--interactive`, `--update`. |
 
 Flags e prosa valem igual: `/mgr-status-report Squad X últimas duas semanas` funciona.
 
@@ -114,6 +114,7 @@ Sem `--period`, o report cobre os últimos 7 dias. A saída no chat é só a lin
 - Revisar o farol antes de aplicar: `/mgr-status-report Squad X --interactive`.
 - Conector do messenger fora: `/mgr-status-report Squad X --sources tracker,meetings`.
 - Agendamento sem pasta conectada: `/mgr-status-report Squad X --data-root /caminho/para/manager-assistant`.
+- Reunião depois do report: `/mgr-status-report --update o report do Squad X com o transcript /caminho/sync.md`.
 
 A referência completa de comandos, flags e formato das fontes está em [`plugin/README.md`](plugin/README.md).
 
@@ -128,12 +129,20 @@ O plugin nunca grava na própria pasta de instalação. O estado fica numa pasta
     <workspace-slug>/
       AGENTS.md                    narrativa do workspace
       CLAUDE.md                    aponta para AGENTS.md
-      Team - <Nome>.md
-      Forum - <Nome>.md
-      Person - <Nome>.md
-      Topic - <Nome>.md
-      Report - <Sujeito> - <AAAA-MM-DD>.md
+      teams/
+        <Nome>.md
+      forums/
+        <Nome>.md
+      people/
+        <Nome>.md
+      topics/
+        <Nome>.md
+      reports/
+        <AAAA-MM>/                 uma pasta por mês, pelo mês em que o report foi gerado
+          Report - <Sujeito> - <AAAA-MM-DD>.md
 ```
+
+Cada tipo de nota tem a sua pasta, e só `reports/` tem subpastas. O nome do arquivo é só o nome da nota, igual ao título, sem prefixo de tipo: a pasta já diz o tipo. Só os reports mantêm o prefixo `Report - `. Os wikilinks (`[[Squad X]]`) não levam pasta e funcionam igual no Obsidian; por isso um nome não pode se repetir entre times, fóruns, pessoas e tópicos. Workspaces criados antes da versão 0.3.0 têm as notas soltas na raiz, com prefixo: rode `/mgr-setup` uma vez e ele move cada nota para a sua pasta, tira o prefixo e reescreve os links (as outras skills param com `BLOCKED` até isso acontecer).
 
 Tudo é texto simples: JSON só no `config.json`, o resto é Markdown com frontmatter YAML, legível por você, pelo Obsidian, por outros agentes e por scripts.
 

@@ -6,7 +6,7 @@ status: {{on_track | in_risk | problem | TBD}}
 description: "{{Até 300 caracteres sobre o tópico: problema que ataca, resultado esperado, por que importa agora}}"
 created: {{YYYY-MM-DD}}
 # Optional — inclua apenas quando o usuário informar:
-# isPartOf: "[[Topic - {{Parent Topic Name}}]]"
+# isPartOf: "[[{{Parent Topic Name}}]]"
 # dueDate: {{YYYY-MM-DD}}
 ---
 
