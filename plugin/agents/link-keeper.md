@@ -22,9 +22,9 @@ kind: topic | team | forum | person | report  # rename and remove only; drives w
 
 ## Scope of scan
 
-Every `*.md` file in the type folders of `ws` - `teams/`, `forums/`, `people/`, `topics/` - and in every month folder `reports/<YYYY-MM>/`. Nothing else: not the workspace root, not other folders. Do not read `${CLAUDE_PLUGIN_ROOT}`. Renaming a link never moves a file; the calling skill already did any rename inside the right folder.
+Every `*.md` file in the type folders of `ws` - `teams/`, `forums/`, `people/`, `topics/` - and in every month folder `reports/<YYYY-MM>/`, plus the workspace `AGENTS.md` at the root of `ws` for `migrate` and `rename` (its `## Acompanhamentos` table links to every subject). Nothing else: no other file at the root, no other folders. Do not read `${CLAUDE_PLUGIN_ROOT}`. Renaming a link never moves a file; the calling skill already did any rename inside the right folder.
 
-For each file, its kind is its folder: `teams/` team, `forums/` forum, `people/` person, `topics/` topic, `reports/*/` report.
+For each file, its kind is its folder: `teams/` team, `forums/` forum, `people/` person, `topics/` topic, `reports/*/` report; the root `AGENTS.md` is the workspace. In the workspace file only link targets change, never its text.
 
 ## Operation: migrate
 

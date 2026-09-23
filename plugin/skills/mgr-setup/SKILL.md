@@ -17,9 +17,17 @@ Found `config.json`: `DATA_ROOT` is its folder; say so in one line and skip Roun
 **Migrate a workspace from 0.2.x.** Notes now live in one folder per type inside the workspace (`teams/`, `forums/`, `people/`, `topics/`, `reports/<YYYY-MM>/`) and, except reports, their file names carry no type prefix (table in `data-model.md`). If the active workspace still has prefixed notes at its root (`Team - X.md`, `Forum - X.md`, `Person - X.md`, `Topic - X.md`, `Report - ....md`), in any mode, migrate before doing anything else:
 
 1. Move each note with `mv`, creating folders as needed: `Team - X.md` → `teams/X.md`, `Forum - X.md` → `forums/X.md`, `Person - X.md` → `people/X.md`, `Topic - X.md` → `topics/X.md`, `Topic - archived - X.md` → `topics/archived - X.md`. A report keeps its name and goes to `reports/<YYYY-MM>/`, the month of its `generated` frontmatter field (the date in its file name when `generated` is missing). If two notes would end with the same name, move neither, and list the clash in the summary for the user to rename.
-2. Invoke the `eis-manager-assistant:link-keeper` agent with `operation: migrate` and `ws: <WS absolute path>`. It rewrites the wikilinks and the markdown links to people in every note. Do not edit notes yourself for this.
+2. Invoke the `eis-manager-assistant:link-keeper` agent with `operation: migrate` and `ws: <WS absolute path>`. It rewrites the wikilinks and the markdown links to people in every note and in the workspace `AGENTS.md`. Do not edit notes yourself for this.
+3. Bring the workspace root up to date (below).
 
 List the moves and the agent output in the summary.
+
+**Workspace root up to date.** Runs as step 3 of the migration and also on its own, in any mode, whenever the workspace `AGENTS.md` still describes the 0.2.x layout (it tells agents to read `Team - *.md`, `Topic - *.md` and so on "desta pasta", or carries prefixed wikilinks such as `[[Team - X]]`) even though the notes are already in type folders:
+
+- In `AGENTS.md`, replace only the intro paragraph under the H1 (the one saying what to read and where) with the one in the current `AGENTS.md` template. If prefixed wikilinks remain, invoke `link-keeper` with `operation: migrate`. Never touch `## Sobre`, `## O que importa acompanhar`, `## Ferramentas`, `## Convenções e armadilhas` or the frontmatter.
+- `CLAUDE.md` missing: create it from the template. Present: make sure it points to `@AGENTS.md`; if it also repeats the old layout (prefixed file names in the workspace root), replace just those lines with a pointer to `AGENTS.md`, keeping anything else the user wrote.
+
+List what changed in the summary.
 
 ## References
 

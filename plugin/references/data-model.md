@@ -40,7 +40,7 @@ Names are unique across the workspace: no two notes in `teams/`, `forums/`, `peo
 
 ### Workspaces created before 0.3.0
 
-Up to plugin version 0.2.x every note lived directly in `WS` with a type prefix (`Team - X.md`, `Topic - X.md`) and wikilinks carried it (`[[Team - X]]`). A workspace with prefixed notes at its root is a legacy workspace: `mgr-setup` migrates it (see its Step 0). Every other skill that finds such notes stops with `STATUS: BLOCKED` and asks the user to run `/mgr-setup` once.
+Up to plugin version 0.2.x every note lived directly in `WS` with a type prefix (`Team - X.md`, `Topic - X.md`) and wikilinks carried it (`[[Team - X]]`). A workspace with prefixed notes at its root is a legacy workspace: `mgr-setup` migrates it (see its Step 0), including the workspace `AGENTS.md` (intro paragraph and wikilinks) and `CLAUDE.md`; it also fixes those two on their own when the notes were already moved but they still describe the old layout. Every other skill that finds such notes stops with `STATUS: BLOCKED` and asks the user to run `/mgr-setup` once.
 
 ## Subjects
 
