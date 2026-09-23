@@ -122,7 +122,16 @@ Record `learned:` lines and any recurring channel, meeting or folder found in th
 
 ## Summary
 
-`STATUS: OK | WARN | BLOCKED` first. `WARN` when a source was not consulted, a topic had no evidence, evidence was cut, a farol changed silently, or the subject has no board (`TBD`). Then, briefly: report path, period, sources consulted and skipped with reasons, farol changes, what was learned and recorded, items in `## Não verificado`, and the natural next step. In update mode: report path, what was added per section, farol changes, contradictions with existing facts, material not consulted and why.
+`STATUS: OK | WARN | BLOCKED` first. `WARN` when a source was not consulted, a topic had no evidence, evidence was cut, a farol changed silently, or the subject has no board (`TBD`). Then, briefly: report path, period, sources consulted and skipped with reasons, farol changes, what was learned and recorded, items in `## Não verificado`, and the natural next step.
+
+In update mode the summary is an update report, in the chat, with these blocks in this order (a block with nothing says "nenhum"). Every line names the section or note it refers to and carries the source link:
+
+1. **Report atualizado**: path, and the material received (files, links, text) with what was consulted and what was not, and why.
+2. **Modificado**: facts added, per report section; items moved out of `## Não verificado`; executive summary adjusted or not; frontmatter fields changed.
+3. **Marcado como concluído**: every `- [ ]` flipped to `- [x]`, with its accountable and the new source.
+4. **Farol**: every topic whose farol changed (previous → new, reason), in the report and in the topic note, and whether it was applied without confirmation.
+5. **Contradições**: each fact of the new material that conflicts with one already in the report, both sides with their sources and dates. The skill does not decide which one is right.
+6. **Atualizar manualmente**: what the new material says but this skill cannot or must not write, each with where it should go and the command when there is one. For example: a fact that fits no topic of the subject (`/mgr-topic --add`); a change of deadline, scope or description of a topic (`dueDate`, `description`, `## Contexto` are never edited here); a new person or source for the subject (`/mgr-setup --person`, `/mgr-setup --source`); pasted text that needs a link to leave `## Não verificado`; a contradiction the user must resolve in the report.
 
 ## Never
 

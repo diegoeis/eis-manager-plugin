@@ -135,6 +135,7 @@ Com `--update`:
 - Arquivo local é lido direto e citado pelo path. Link de tracker, messenger ou reunião passa pelo sub-agente da ferramenta; sem conector, fica como não consultado. Texto colado sem link vai para `## Não verificado`.
 - Os fatos novos entram nas seções certas; pendência aberta que o material mostra concluída vira `[x]`; item de `## Não verificado` que ganhou fonte sai de lá; o farol dos tópicos com evidência nova é recalculado e o resumo executivo é ajustado se mudar o que a liderança precisa saber. O frontmatter ganha `updated: <data>`.
 - Nada que já tinha fonte é apagado ou reescrito. Se o material novo contradiz um fato, os dois ficam, cada um com sua fonte, e o resumo no chat aponta a contradição.
+- Ao final, o chat traz um report da atualização em blocos fixos: report e material recebido (consultado ou não, e por quê), o que foi modificado por seção, o que foi marcado como concluído, faróis alterados, contradições encontradas e o que você precisa atualizar à mão (fato sem tópico, mudança de prazo ou escopo, pessoa ou fonte nova, texto sem link, contradição a resolver), com o comando quando houver.
 - Tópico cujo farol mudou ganha uma entrada nova em `## Status` marcada `(atualizado em <data>)`.
 
 Casos de uso do `--update`:
