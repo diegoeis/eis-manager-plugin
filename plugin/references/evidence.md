@@ -60,6 +60,7 @@ Rules that keep the report honest:
 - Inside the period, except open blockers and overdue items still open at `periodEnd`.
 - No customer names, no personal data beyond team members' names, no long copies of messages or transcripts.
 - Pull requests, merge requests, code reviews, commits, pipelines and deploys are not evidence by themselves. Do not return "PR #42 aberto" or "MR aguardando review" as `pending`, `blocker` or `progress`. Return the work item they close when the source says it was delivered (`type: delivery`, source = the issue or the message announcing it); otherwise omit.
+- Meeting logistics are not evidence: calendar overlaps or conflicts between meetings, reschedules, cancellations, who attended or missed, meeting length. Omit them in any `type`.
 - Keep it to what a report can use, roughly a dozen or so items; when cutting, keep deliveries, blockers and decisions and say how many were left out. Empty is valid.
 
 ## How the skill uses evidence

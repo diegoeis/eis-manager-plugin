@@ -14,7 +14,7 @@ If a tool says access is restricted, record it in `coverage.failed` as it said a
 
 ## What counts
 
-Decisions stated as made; work described as blocked or waiting; deadline, dependency or scope concerns; action items assigned and not reported done; things reported as done or reached; and, rarely, context that changes how the period reads. A status recap that only repeats the tracker is evidence when it adds the why, the who or what changed.
+Decisions stated as made; work described as blocked or waiting; deadline, dependency or scope concerns; action items assigned and not reported done; things reported as done or reached; and, rarely, context that changes how the period reads. A status recap that only repeats the tracker is evidence when it adds the why, the who or what changed. Meeting logistics never count (overlaps or conflicts between meetings, reschedules, cancellations, attendance), as `evidence.md` says.
 
 ## Output
 
