@@ -12,9 +12,9 @@ Plain text with these fields. Missing fields, unknown operation, or absent `ws` 
 
 ```
 operation: migrate | rename | remove
-ws: <absolute path to the workspace folder>
-old: [[<Old File Name Without .md>]]         # rename and remove only
-new: [[<New File Name Without .md>]]         # rename only
+ws: {{absolute path to the workspace folder}}
+old: [[{{Old File Name Without .md}}]]         # rename and remove only
+new: [[{{New File Name Without .md}}]]         # rename only
 kind: topic | team | forum | person | report  # rename and remove only; drives which frontmatter fields are relevant
 ```
 
@@ -22,7 +22,7 @@ kind: topic | team | forum | person | report  # rename and remove only; drives w
 
 ## Scope of scan
 
-Every `*.md` file in the type folders of `ws` - `teams/`, `forums/`, `people/`, `topics/` - and in every month folder `reports/<YYYY-MM>/`, plus the workspace `AGENTS.md` at the root of `ws` for `migrate` and `rename` (its `## Acompanhamentos` table links to every subject). Nothing else: no other file at the root, no other folders. Do not read `${CLAUDE_PLUGIN_ROOT}`. Renaming a link never moves a file; the calling skill already did any rename inside the right folder.
+Every `*.md` file in the type folders of `ws` - `teams/`, `forums/`, `people/`, `topics/` - and in every month folder `reports/{{YYYY-MM}}/`, plus the workspace `AGENTS.md` at the root of `ws` for `migrate` and `rename` (its `## Acompanhamentos` table links to every subject). Nothing else: no other file at the root, no other folders. Do not read `${CLAUDE_PLUGIN_ROOT}`. Renaming a link never moves a file; the calling skill already did any rename inside the right folder.
 
 For each file, its kind is its folder: `teams/` team, `forums/` forum, `people/` person, `topics/` topic, `reports/*/` report; the root `AGENTS.md` is the workspace. In the workspace file only link targets change, never its text.
 
@@ -40,13 +40,13 @@ Rewrite every occurrence of `old` to `new` across all in-scope files, including 
 
 Places where the wikilink can appear:
 
-- **Frontmatter list values**: on Team, Forum, Person → `topics: [ ..., "[[old]]", ... ]`. On a Topic → `isPartOf: "[[old]]"`. On a Report → `subject: "[[old]]"`, `topics: [ ..., "[[old]]", ... ]`, `previousReport: "[[old]]"`.
+- **Frontmatter list values**: on Team, Forum, Person → `topics: [ ..., "[[old]]", ... ]`. On a Topic → `isPartOf: "[[old]]"`. On a Report → `owner: "[[old]]"` (`subject: "[[old]]"` in older reports that still carry it), `topics: [ ..., "[[old]]", ... ]`, `previousReport: "[[old]]"`.
 - **Body tables**: on Team/Forum/Person → the `## Topics` table row whose Link cell is `[[old]]`.
 - **Body prose and bullets**: any occurrence of `[[old]]` in `## Sobre`, `## Contexto`, `## Status` bullets, `## Fontes relacionadas`, `## Arquivos e assets`, or any report section.
 
-Rewrite everywhere. When `kind: person`, also repoint markdown links whose target is `people/<old name>.md` to `people/<new name>.md`, keeping the relative part. A file with zero occurrences is skipped (not edited).
+Rewrite everywhere. When `kind: person`, also repoint markdown links whose target is `people/{{old name}}.md` to `people/{{new name}}.md`, keeping the relative part. A file with zero occurrences is skipped (not edited).
 
-Kind-specific safety: when `kind: topic` and the operation is an archive-style rename to `[[archived - <Name>]]`, the report content stays valid because `[Fn]` references and all factual sentences remain unchanged.
+Kind-specific safety: when `kind: topic` and the operation is an archive-style rename to `[[archived - {{Name}}]]`, the report content stays valid because `[Fn]` references and all factual sentences remain unchanged.
 
 ## Operation: remove
 
@@ -66,16 +66,16 @@ Markdown, one line per touched file plus a summary block. Keep it short:
 STATUS: OK | WARN | BLOCKED
 
 # Edited
-- <file>: <n> occurrence(s) in <field/section>[, <field/section>, ...]
+- {{file}}: {{n}} occurrence(s) in {{field/section}}[, {{field/section}}, ...]
 
 # Orphan wikilinks left as labels
-- <file>: <n> occurrence(s)    # remove only, includes reports and any body prose
+- {{file}}: {{n}} occurrence(s)    # remove only, includes reports and any body prose
 
 # Summary
-files_scanned: <n>
-files_edited: <n>
-occurrences_edited: <n>
-occurrences_left_as_labels: <n>
+files_scanned: {{n}}
+files_edited: {{n}}
+occurrences_edited: {{n}}
+occurrences_left_as_labels: {{n}}
 ```
 
 `STATUS: WARN` when the operation left any orphan wikilinks (expected on remove; unexpected on rename — report which files were skipped). `BLOCKED` when the brief was malformed or `ws` is missing.

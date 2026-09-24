@@ -7,27 +7,27 @@ Shared contract between the report skills and the `source-*` sub-agents. A sub-a
 Plain text. Include what the workspace knows; leave out what it does not. Never send note bodies, previous reports or the user's own commentary; the agent's job is to look at the source, not to echo the workspace.
 
 ```
-subject: <Subject Name>
+subject: {{Subject Name}}
 subjectType: team | forum | person
-period: <YYYY-MM-DD>..<YYYY-MM-DD>
-language: <language the user is writing in>
-people: <PM, Tech Lead, facilitator, members - names only; for a person, that person>
+period: {{YYYY-MM-DD}}..{{YYYY-MM-DD}}
+language: {{language the user is writing in}}
+people: {{PM, Tech Lead, facilitator, members - names only; for a person, that person}}
 topics:
-  - <Topic Name> | keywords: <name, aliases, epic keys> | channels: <...> | meetings: <what: where, where, ...> | files: <...>
-board: <key and URL>                          # tracker; absent when the subject has none (TBD)
-assignee: <person name>                       # tracker, person subjects only: restrict to items assigned to or reported by them
-doneStatuses / blockedStatuses: <...>         # tracker, when the workspace states them
-channels: <subject channels from its `## Fontes relacionadas` (rows whose `Tipo` names a messenger tool), then workspace channels>       # messenger; never DMs
-meetings: <what: where, where, ... - from the subject's `## Fontes relacionadas` (rows whose `Tipo` names a meeting tool, grouped by `Nome`)>  # meetings
-meetingTools: <every place listed under a meeting in the subject or its topics, or "any">  # meetings
-localFolders: <paths where notes or transcripts may exist>   # meetings and local notes
+  - {{Topic Name}} | keywords: {{name, aliases, epic keys}} | channels: {{...}} | meetings: {{what: where, where, ...}} | files: {{...}}
+board: {{key and URL}}                          # tracker; absent when the subject has none (TBD)
+assignee: {{person name}}                       # tracker, person subjects only: restrict to items assigned to or reported by them
+doneStatuses / blockedStatuses: {{...}}         # tracker, when the workspace states them
+channels: {{subject channels from its `## Fontes relacionadas` (rows whose `Tipo` names a messenger tool), then workspace channels}}       # messenger; never DMs
+meetings: {{what: where, where, ... - from the subject's `## Fontes relacionadas` (rows whose `Tipo` names a meeting tool, grouped by `Nome`)}}  # meetings
+meetingTools: {{every place listed under a meeting in the subject or its topics, or "any"}}  # meetings
+localFolders: {{paths where notes or transcripts may exist}}   # meetings and local notes
 ```
 
 `localFolders` is built in this order, first entries being the most specific: the subject's `## Arquivos e assets`, then each topic's `## Arquivos e assets` (also repeated on the topic's `files:`), then `config.json → sources` and `referenceFolders`. Subject-level entries carry `topic: subject` unless the note names a topic.
 
 Every note (subject or topic) exposes sources through the same two sections: `## Fontes relacionadas` (single table Nome | URL/Link | Tipo) and `## Arquivos e assets`. Rows whose `Tipo` names a messenger tool feed `channels`; rows whose `Tipo` names a meeting tool feed `meetings` (grouped by `Nome` when several rows share a title); `## Arquivos e assets` bullets feed `files`.
 
-`meetings` keeps each meeting with the places listed under it, as written (`Weekly do time: Granola, Pasta local /path, Google Drive <link>`). `meetingTools` is the set of all places; when the user registered none it is `any`.
+`meetings` keeps each meeting with the places listed under it, as written (`Weekly do time: Granola, Pasta local /path, Google Drive {{link}}`). `meetingTools` is the set of all places; when the user registered none it is `any`.
 
 For a person subject the evidence is about the work the person answers for: items, decisions, blockers and deliveries tied to them or their topics. Nothing about conduct, tone or availability; direct messages are never opened.
 
@@ -37,19 +37,19 @@ Markdown, in this shape:
 
 ```
 coverage:
-  queried: <what was actually looked at>
-  failed: <what could not be looked at, and why - or "none">
+  queried: {{what was actually looked at}}
+  failed: {{what could not be looked at, and why - or "none"}}
 
 evidence:
 - id: E1
   date: YYYY-MM-DD
   type: delivery | progress | blocker | risk | decision | pending | context
-  topic: <Topic Name from the brief | subject | unknown>
-  fact: <one sentence, factual, no interpretation>
-  who: <person named by the source, else omit>
-  source: <URL, issue key, permalink, meeting title + date, file path>
+  topic: {{Topic Name from the brief | subject | unknown}}
+  fact: {{one sentence, factual, no interpretation}}
+  who: {{person named by the source, else omit}}
+  source: {{URL, issue key, permalink, meeting title + date, file path}}
 
-learned: <optional - things worth recording for next time: a channel, a recurring meeting, a folder, a board convention, an epic that maps to a topic>
+learned: {{optional - things worth recording for next time: a channel, a recurring meeting, a folder, a board convention, an epic that maps to a topic}}
 ```
 
 Rules that keep the report honest:

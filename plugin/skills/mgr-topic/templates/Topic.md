@@ -20,7 +20,7 @@ created: {{YYYY-MM-DD}}
 
 ### YYYY-MM-DD
 
-- **Report**: [[Report - <Subject Name> - YYYY-MM-DD]]
+- **Report**: [[Report - {{Subject Name}} - YYYY-MM-DD]]
   - **Farol**: {{on_track | in_risk | problem | TBD}}
   - **Descrição**: {{Até 80 palavras resumindo o estado atual, o que avançou, o que bloqueia. Cada afirmação factual carrega [Fn].}}
 

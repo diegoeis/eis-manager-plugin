@@ -1,18 +1,12 @@
 ---
 name: "{{Subject Name}} - {{YYYY-MM-DD}}"
 type: report
-reportType: status
-subjectType: {{team | person | forum}}
-subject: "[[{{Subject Name}}]]"
+owner: "[[{{Subject Name}}]]"
 periodStart: {{YYYY-MM-DD}}
 periodEnd: {{YYYY-MM-DD}}
-generated: {{YYYY-MM-DD}}
+created: {{YYYY-MM-DD}}
 topics:
   - "[[{{Topic Name}}]]"
-sourcesConsulted:
-  - {{tracker | messenger | meetings}}
-sourcesSkipped:
-  - {{tracker | messenger | meetings}}
 previousReport: "[[Report - {{Subject Name}} - {{YYYY-MM-DD}}]]"
 ---
 
@@ -40,7 +34,7 @@ Período: {{YYYY-MM-DD}} a {{YYYY-MM-DD}}. Gerado em {{YYYY-MM-DD}} a partir das
 - **Riscos e bloqueios:**
   - {{o que ameaça o tópico, com a fonte linkada inline; "Nenhum identificado nas fontes consultadas" quando não houver}}
 - **Próximos passos:**
-  - {{o que as fontes indicam como próximo, com a fonte linkada inline; nunca inventar. Responsável linkado como [Nome](../../people/Nome.md); sem citação, "[<responsável padrão>](../../people/<responsável padrão>.md) (padrão)"}}
+  - {{o que as fontes indicam como próximo, com a fonte linkada inline; nunca inventar. Responsável linkado como [Nome](../../people/Nome.md); sem citação, "[{{responsável padrão}}](../../people/{{responsável padrão}}.md) (padrão)"}}
 
 #### Ações e Pendências
 

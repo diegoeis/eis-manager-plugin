@@ -9,8 +9,8 @@ Não cria histórias, tarefas nem especificações técnicas ou de produto.
 | Skill | O que faz |
 | --- | --- |
 | `/mgr-setup` | Cria a pasta de dados, o workspace e as notas de times, fóruns, pessoas e tópicos. Modos `--team`, `--forum`, `--person`, `--topic` e `--source` para estender. |
-| `/mgr-topic` | Cria, lista, remove e arquiva tópicos (`--add`, `--list-topics`, `--remove <Nome>`, `--archive <Nome>`). Ponto único de criação de tópicos. |
-| `/mgr-status-report [sujeito] [--period 7d] [--sources tracker,messenger,meetings] [--data-root /path] [--interactive] [--update material]` | Gera `reports/<AAAA-MM>/Report - <Sujeito> - <data>.md` de um time, fórum ou pessoa acompanhada, a partir do tracker, messenger e reuniões, com cada fato citado, e propõe o farol dos tópicos. Silencioso por padrão; sem `--period` cobre sempre os últimos 7 dias; `--interactive` confirma time e farol; `--update` acrescenta informações novas a um report existente. |
+| `/mgr-topic` | Cria, lista, remove e arquiva tópicos (`--add`, `--list-topics`, `--remove {{Nome}}`, `--archive {{Nome}}`). Ponto único de criação de tópicos. |
+| `/mgr-status-report [sujeito] [--period 7d] [--sources tracker,messenger,meetings] [--data-root /path] [--interactive] [--update material]` | Gera `reports/{{AAAA-MM}}/Report - {{Sujeito}} - {{data}}.md` de um time, fórum ou pessoa acompanhada, a partir do tracker, messenger e reuniões, com cada fato citado, e propõe o farol dos tópicos. Silencioso por padrão; sem `--period` cobre sempre os últimos 7 dias; `--interactive` confirma time e farol; `--update` acrescenta informações novas a um report existente. |
 
 ## How to
 
@@ -22,7 +22,7 @@ Conecte à sessão a pasta onde você já guarda notas (vault do Obsidian, pasta
 /mgr-setup
 ```
 
-O setup lê só nomes de arquivos e frontmatter dessa pasta para sugerir times, pessoas e projetos. Ele pergunta onde gravar o estado (padrão: `<pasta conectada>/manager-assistant/`), cria o workspace, encadeia o cadastro do primeiro time e dos seus tópicos, e termina com `STATUS: OK` ou `WARN` listando o que ficou como `TBD`.
+O setup lê só nomes de arquivos e frontmatter dessa pasta para sugerir times, pessoas e projetos. Ele pergunta onde gravar o estado (padrão: `{{pasta conectada}}/manager-assistant/`), cria o workspace, encadeia o cadastro do primeiro time e dos seus tópicos, e termina com `STATUS: OK` ou `WARN` listando o que ficou como `TBD`.
 
 Sem pasta conectada, ele pede um caminho antes de qualquer coisa.
 
@@ -37,11 +37,11 @@ O plugin acompanha **sujeitos**: um time, um fórum (reunião recorrente de deci
 | `/mgr-setup --forum` | Adiciona um fórum (nome, facilitador, participantes, cadência). Sem board por padrão. Oferece tópicos em seguida. |
 | `/mgr-setup --person` | Passa a acompanhar uma pessoa já cadastrada (ou nova): marca `tracked: true`, pergunta o escopo do acompanhamento. Oferece tópicos em seguida. |
 | `/mgr-setup --topic` | Atalho para adicionar tópicos durante o setup; delega para `/mgr-topic --add`. Vários de uma vez, um por linha. A relação fica no sujeito (frontmatter `topics` + tabela `## Topics`); o tópico não referencia sujeitos. |
-| `/mgr-setup --source <frase>` | Registra um canal, reunião ou pasta em `## Fontes relacionadas` / `## Arquivos e assets` do sujeito (ou do tópico, se citado) a partir de uma frase. |
+| `/mgr-setup --source {{frase}}` | Registra um canal, reunião ou pasta em `## Fontes relacionadas` / `## Arquivos e assets` do sujeito (ou do tópico, se citado) a partir de uma frase. |
 | `/mgr-topic --list-topics` | Lista todos os tópicos com status e os sujeitos que os referenciam. |
 | `/mgr-topic --add` | Cria um tópico e o registra em cada sujeito escolhido. Ponto único de criação — outras skills e agentes delegam para cá. |
-| `/mgr-topic --remove <Nome>` | Remove o arquivo do tópico e limpa os wikilinks em cada sujeito. Reports antigos ficam com link quebrado (por design). |
-| `/mgr-topic --archive <Nome>` | Renomeia o arquivo para `archived - <Nome>.md`, ajusta o título e `status: archived`, e atualiza os wikilinks nos sujeitos para o novo nome. |
+| `/mgr-topic --remove {{Nome}}` | Remove o arquivo do tópico e limpa os wikilinks em cada sujeito. Reports antigos ficam com link quebrado (por design). |
+| `/mgr-topic --archive {{Nome}}` | Renomeia o arquivo para `archived - {{Nome}}.md`, ajusta o título e `status: archived`, e atualiza os wikilinks nos sujeitos para o novo nome. |
 
 O setup nunca lê tracker, messenger ou ferramentas de reunião; ele só guarda URLs. Também não pergunta status, prazo ou fontes ao cadastrar sujeito ou tópico: status e prazo vêm do report; fontes entram por `--source` ou editando a nota.
 
@@ -66,7 +66,7 @@ Pelo comando, descrevendo em prosa:
 
 A skill descobre o sujeito (pergunta se houver mais de um e nenhum citado), a subseção pelo que a frase descreve, e anexa as linhas na nota certa. Um path de vault novo também é gravado em `config.json → sources`.
 
-Ou edite à mão as seções `## Fontes relacionadas` e `## Arquivos e assets` de `teams/<Time>.md`, `forums/<Fórum>.md`, `people/<Pessoa>.md` ou `topics/<Tópico>.md`:
+Ou edite à mão as seções `## Fontes relacionadas` e `## Arquivos e assets` de `teams/{{Time}}.md`, `forums/{{Fórum}}.md`, `people/{{Pessoa}}.md` ou `topics/{{Tópico}}.md`:
 
 ```markdown
 ## Fontes relacionadas
@@ -111,8 +111,8 @@ Flags e prosa valem igual: `/mgr-status-report Squad XPTO últimas duas semanas`
 
 O que ele produz:
 
-1. `reports/<AAAA-MM>/Report - <Sujeito> - <data fim>.md` no workspace, na pasta do mês em que o report foi gerado (não do período), criada se não existir (nunca sobrescreve; repete no mesmo dia e sai `-2`, `-3`). Resumo executivo, tabela de farol, seção por tópico, entregas, riscos, decisões, tabela de fontes `F1..Fn` e o que não pôde ser verificado. Toda frase factual carrega `[Fn]`. PRs, MRs, reviews, commits e deploys nunca entram como ação, pendência ou risco; só sustentam uma entrega do item de trabalho a que pertencem. Ações, pendências, riscos e próximos passos têm sempre um responsável: quem a fonte cita ou, sem citação, o responsável padrão do sujeito marcado como tal (time: PM e Tech Lead; fórum: facilitador; pessoa: ela mesma).
-2. Atualiza cada `topics/*.md` do sujeito: `status` no frontmatter e uma entrada em `## Status` sob a subseção `### <data fim>` (link do report, farol e descrição). Dias existentes recebem novas entradas empilhadas; nada é sobrescrito.
+1. `reports/{{AAAA-MM}}/Report - {{Sujeito}} - {{data fim}}.md` no workspace, na pasta do mês em que o report foi gerado (não do período), criada se não existir (nunca sobrescreve; repete no mesmo dia e sai `-2`, `-3`). Resumo executivo, tabela de farol, seção por tópico, entregas, riscos, decisões, tabela de fontes `F1..Fn` e o que não pôde ser verificado. Toda frase factual carrega `[Fn]`. PRs, MRs, reviews, commits e deploys nunca entram como ação, pendência ou risco; só sustentam uma entrega do item de trabalho a que pertencem. Ações, pendências, riscos e próximos passos têm sempre um responsável: quem a fonte cita ou, sem citação, o responsável padrão do sujeito marcado como tal (time: PM e Tech Lead; fórum: facilitador; pessoa: ela mesma).
+2. Atualiza cada `topics/*.md` do sujeito: `status` no frontmatter e uma entrada em `## Status` sob a subseção `### {{data fim}}` (link do report, farol e descrição). Dias existentes recebem novas entradas empilhadas; nada é sobrescrito.
 3. Anexa em `## Fontes relacionadas` e `## Arquivos e assets` do sujeito e dos tópicos o que os sub-agentes aprenderam.
 4. No chat, só a primeira linha `STATUS: OK | WARN | BLOCKED` e um resumo: caminho do report, período, fontes consultadas e puladas, faróis alterados, próximo passo. O conteúdo do report não é despejado no chat.
 
@@ -133,10 +133,10 @@ Casos de uso:
 Com `--update`:
 
 - Arquivo local é lido direto e citado pelo path. Link de tracker, messenger ou reunião passa pelo sub-agente da ferramenta; sem conector, fica como não consultado. Texto colado sem link vai para `## Não verificado`.
-- Os fatos novos entram nas seções certas; pendência aberta que o material mostra concluída vira `[x]`; item de `## Não verificado` que ganhou fonte sai de lá; o farol dos tópicos com evidência nova é recalculado e o resumo executivo é ajustado se mudar o que a liderança precisa saber. O frontmatter ganha `updated: <data>`.
+- Os fatos novos entram nas seções certas; pendência aberta que o material mostra concluída vira `[x]`; item de `## Não verificado` que ganhou fonte sai de lá; o farol dos tópicos com evidência nova é recalculado e o resumo executivo é ajustado se mudar o que a liderança precisa saber. O frontmatter ganha `updated: {{data}}`.
 - Nada que já tinha fonte é apagado ou reescrito. Se o material novo contradiz um fato, os dois ficam, cada um com sua fonte, e o resumo no chat aponta a contradição.
 - Ao final, o chat traz um report da atualização em blocos fixos: report e material recebido (consultado ou não, e por quê), o que foi modificado por seção, o que foi marcado como concluído, faróis alterados, contradições encontradas e o que você precisa atualizar à mão (fato sem tópico, mudança de prazo ou escopo, pessoa ou fonte nova, texto sem link, contradição a resolver), com o comando quando houver.
-- Tópico cujo farol mudou ganha uma entrada nova em `## Status` marcada `(atualizado em <data>)`.
+- Tópico cujo farol mudou ganha uma entrada nova em `## Status` marcada `(atualizado em {{data}})`.
 
 Casos de uso do `--update`:
 
@@ -167,7 +167,7 @@ plugin/
 
 ## Onde vive o estado
 
-O plugin não grava nada dentro de sua pasta de instalação. O estado fica numa pasta que o usuário escolhe no `/mgr-setup` (padrão: `<pasta conectada>/manager-assistant/`), com `config.json` e `workspaces/<slug>/`. Dentro do workspace, cada tipo de nota tem sua pasta: `teams/`, `forums/`, `people/`, `topics/` e `reports/<AAAA-MM>/` (só `reports/` tem subpastas, uma por mês). O nome do arquivo é só o nome da nota, sem prefixo de tipo; só reports mantêm `Report - `. Wikilinks não levam pasta, então nomes não se repetem entre times, fóruns, pessoas e tópicos. Workspaces anteriores à 0.3.0, com as notas na raiz e com prefixo, são migrados pelo `/mgr-setup`, que também atualiza o `AGENTS.md` e o `CLAUDE.md` do workspace. Se você já migrou e esses arquivos ficaram com a estrutura antiga, rodar `/mgr-setup` de novo corrige. Notas são Markdown com frontmatter YAML e relações por wikilinks, no estilo Obsidian. Detalhes em `references/data-root.md` e `references/data-model.md`.
+O plugin não grava nada dentro de sua pasta de instalação. O estado fica numa pasta que o usuário escolhe no `/mgr-setup` (padrão: `{{pasta conectada}}/manager-assistant/`), com `config.json` e `workspaces/{{slug}}/`. Dentro do workspace, cada tipo de nota tem sua pasta: `teams/`, `forums/`, `people/`, `topics/` e `reports/{{AAAA-MM}}/` (só `reports/` tem subpastas, uma por mês). O nome do arquivo é só o nome da nota, sem prefixo de tipo; só reports mantêm `Report - `. Wikilinks não levam pasta, então nomes não se repetem entre times, fóruns, pessoas e tópicos. Workspaces anteriores à 0.3.0, com as notas na raiz e com prefixo, são migrados pelo `/mgr-setup`, que também atualiza o `AGENTS.md` e o `CLAUDE.md` do workspace. Se você já migrou e esses arquivos ficaram com a estrutura antiga, rodar `/mgr-setup` de novo corrige. Notas são Markdown com frontmatter YAML e relações por wikilinks, no estilo Obsidian. Detalhes em `references/data-root.md` e `references/data-model.md`.
 
 ## Instalação para desenvolvimento
 
@@ -175,4 +175,4 @@ O plugin não grava nada dentro de sua pasta de instalação. O estado fica numa
 claude --plugin-dir /caminho/para/plugin
 ```
 
-Empacotar: `./maintainers/scripts/pack.sh` (gera `maintainers/eis-manager-assistant-v<versão>.zip`).
+Empacotar: `./maintainers/scripts/pack.sh` (gera `maintainers/eis-manager-assistant-v{{versão}}.zip`).
