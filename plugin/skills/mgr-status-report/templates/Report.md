@@ -30,7 +30,7 @@ Período: {{YYYY-MM-DD}} a {{YYYY-MM-DD}}. Gerado em {{YYYY-MM-DD}} a partir das
 
 - Farol: {{on_track | in_risk | problem}}
 - **Avanços:**
-  - {{itens entregues ou movidos no período, cada um com a fonte linkada inline; nomes de pessoas linkados como [Nome](../../people/Nome.md)}}
+  - {{itens entregues ou movidos no período, cada um com a fonte linkada inline; nomes de pessoas linkados como [Nome](../../people/Nome.md). Quando o fato é de pessoa de outro time que compartilha este tópico, acrescente o sufixo "(via {{Outro Time}})" no fim da linha}}
 - **Riscos e bloqueios:**
   - {{o que ameaça o tópico, com a fonte linkada inline; "Nenhum identificado nas fontes consultadas" quando não houver}}
 - **Próximos passos:**
@@ -40,8 +40,14 @@ Período: {{YYYY-MM-DD}} a {{YYYY-MM-DD}}. Gerado em {{YYYY-MM-DD}} a partir das
 
 {Lista consolidada das ações e pendências. Inclui: (a) itens abertos ([ ]) herdados dos reports anteriores que ainda não foram marcados como concluídos, mantendo a data original e o link para o report onde surgiram; (b) itens novos identificados neste período. Nunca inclua itens já marcados com [x] em reports anteriores. Nomes dos responsáveis sempre linkados ao arquivo Person correspondente.}
 
+{Só entram itens de pessoas do próprio sujeito deste report. Fato de pessoa de outro time, num tópico compartilhado, fica como contexto em **Avanços** ou **Riscos e bloqueios** com o sufixo "(via {{Outro Time}})" e nunca vira item aqui.}
+
+{Itens herdados cuja fonte é um link (mensagem no messenger, issue, reunião) são reverificados na própria fonte: resolvido vira [x] com sub-bullet "Resolvido em"; novidade sem fechamento continua [ ] com sub-bullet "Atualização em"; fonte inacessível continua [ ] com sub-bullet de não verificado.}
+
   - [ ] [{{Nome do Responsável}}](../../people/{{Nome do Responsável}}.md) - {{Descrição da ação ou pendência, com a fonte linkada inline quando houver}} - [{{YYYY-MM-DD}}](../{{YYYY-MM}}/Report - {{Subject Name}} - {{YYYY-MM-DD}}.md)
+    - Atualização em {{YYYY-MM-DD}}: {{o que a fonte original diz de novo, sem fechar o item}} ([fonte]({{url}}))
   - [x] [{{Nome do Responsável}}](../../people/{{Nome do Responsável}}.md) - {{Decisão tomada ou item concluído neste período, com a fonte linkada inline quando houver}} - [{{YYYY-MM-DD}}](../{{YYYY-MM}}/Report - {{Subject Name}} - {{YYYY-MM-DD}}.md)
+    - Resolvido em {{YYYY-MM-DD}}: {{a resposta na fonte que resolveu o item}} ([fonte]({{url}}))
 
 
 ## Entregas no período

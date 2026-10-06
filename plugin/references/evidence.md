@@ -63,6 +63,46 @@ Rules that keep the report honest:
 - Meeting logistics are not evidence: calendar overlaps or conflicts between meetings, reschedules, cancellations, who attended or missed, meeting length. Omit them in any `type`.
 - Keep it to what a report can use, roughly a dozen or so items; when cutting, keep deliveries, blockers and decisions and say how many were left out. Empty is valid.
 
+## Recheck brief (open items from previous reports)
+
+Besides the period brief, the skill may send a sub-agent a **recheck brief**: a list of items that were left open (`- [ ]`) in the previous report and whose source is a link that agent's tool owns (a Slack/Teams permalink for `source-messenger`, an issue for `source-tracker`, a meeting page for `source-meetings`). The question is not "what happened in the period" but "did this specific item get resolved at its own source".
+
+```
+mode: recheck
+subject: {{Subject Name}}
+language: {{language the user is writing in}}
+since: {{YYYY-MM-DD}}        # date the item was first recorded
+items:
+- id: R1
+  what: {{the open item, one sentence, as written in the report}}
+  source: {{permalink / issue URL / meeting URL of the item}}
+```
+
+The agent opens each `source` (and its thread, replies, comments or follow-ups, including messages after the report period) and returns one block per item:
+
+```
+rechecks:
+- id: R1
+  state: resolved | updated | unchanged | unreachable
+  fact: {{one sentence saying what the follow-up states - omit when unchanged}}
+  who: {{person named by the follow-up, else omit}}
+  date: YYYY-MM-DD           # date of the follow-up
+  source: {{permalink of the reply/comment that shows it - required for resolved and updated}}
+```
+
+- `resolved` only when the follow-up **states** the problem was solved, the question answered or the request done ("resolvido", "subiu", "feito", "pode fechar", an answer that closes the question). A thread that simply went quiet, or an emoji/ack, is `unchanged`.
+- `updated`: there is news on the item but it is not closed (a partial answer, a new deadline, a hand-off).
+- `unreachable`: the link could not be opened (no connector, deleted, no access) — say why in `fact`.
+- Same rules as normal evidence: no quotes, no customer data, every `resolved`/`updated` carries an openable `source` URL. No URL → `unchanged`.
+
+## Pertencimento (who the evidence belongs to)
+
+A topic can be shared by several subjects, so evidence mapped to a topic may be about a person who is not part of the subject being reported. The skill resolves each `who` against the subject's people (team members = every `people/*.md` whose `isPartOf` links to the team; forum = facilitator and members; person = the person herself):
+
+- `who` is of the subject, or there is no `who`: normal evidence, may become an action, pending item, risk or next step.
+- `who` belongs to another subject (her `people/*.md` has another `isPartOf`): the fact is **context of the topic**, written under `**Avanços:**` or `**Riscos e bloqueios:**` with the suffix `(via {{Outro Time}})`, and **never** enters `#### Ações e Pendências`, `## Decisões e pendências` or `## Próximos passos` of this report. The other subject's own report owns it.
+- `who` has no Person note, or has one without `isPartOf`: treat as "of the subject" (do not invent a team), and do not add the suffix.
+
 ## How the skill uses evidence
 
 - Every factual sentence in the report carries the evidence's `source` URL as an inline markdown link `[descrição curta](url)` — not the old `[Fn]` marker. A sentence with no item behind it goes to `## Não verificado` or is dropped. The `## Fontes consultadas` section is a consolidated list of the URLs used, not a numbered index the body points back to.

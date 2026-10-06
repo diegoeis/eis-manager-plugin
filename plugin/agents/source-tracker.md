@@ -16,6 +16,10 @@ If no tool in the session reaches the tracker, or the first call fails for acces
 
 Set `topic` when the issue's epic, parent, labels or title clearly tie it to a topic or keyword from the brief. Otherwise `unknown`. Do not attach an issue to a topic just because it is the subject's only topic.
 
+## Recheck mode
+
+A brief that starts with `mode: recheck` carries a list of open items, each with an issue URL or key. For each one, look at that issue's current status, resolution and latest comments — including changes after the report period — and return the `rechecks:` block described in `evidence.md`, one entry per `id`, and nothing else (no `evidence:` block). `resolved` only when the issue reached a done status or a comment states the item was done; a status move that is not done is `updated`; no change is `unchanged`; no access is `unreachable`.
+
 ## Output
 
 Facts in the brief's language, one issue per item, with the issue link as `source` and the assignee as `who`. Replace customer names with "cliente". Prefer deliveries, blockers and decisions when you must cut, and say how many were cut. An empty result is valid; an invented one is not.

@@ -16,6 +16,12 @@ If no messenger tool is available or the first call fails, return an empty `evid
 
 Decisions stated as made; work described as blocked or waiting and not resolved later in the period; deadlines, dependencies or scope changes flagged as risk; questions or requests left unanswered; things announced as shipped, merged or reached; and, rarely, context that changes how the period reads (someone out, priority change). Chatter, bare links, routine standup lines, and PR/MR, review, CI or deploy notifications (bot or human) are not evidence; "shipped" counts only when it names the feature or work item, not the merge.
 
+## Recheck mode
+
+A brief that starts with `mode: recheck` is not a period sweep: it carries a list of open items, each with the permalink of the message that originated it. For each one, open that message and read its thread and any later message in the same channel that answers it — including messages after the report period, since the point is to find out whether the thing got resolved meanwhile. Return the `rechecks:` block described in `evidence.md`, one entry per `id`, and nothing else (no `evidence:` block).
+
+Be strict about `resolved`: only a reply that states the problem is solved, the question is answered or the request is done. Silence, a 👍, "vou ver" or a reply that raises a new question are `unchanged` or `updated`, never `resolved`. If the permalink cannot be opened, `state: unreachable` with the reason.
+
 ## Output
 
 One-sentence paraphrases in the brief's language, never long quotes, never customer names, phone numbers, emails or document numbers. `source` is the message permalink, or channel plus timestamp and author when there is none. `topic` follows the registered channel or the topic the message names; otherwise `unknown`. Prefer decisions, blockers and deliveries when you must cut, and say how many were cut. An empty result is valid.

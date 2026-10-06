@@ -31,6 +31,7 @@ Read at the step that needs them: `${CLAUDE_PLUGIN_ROOT}/references/evidence.md`
 - Silent by default: no questions unless `--interactive`. Missing something essential: stop with `BLOCKED` and one line saying what to do.
 - Answer and write in the language the user is writing in. Report headings stay as in the template; they are identifiers.
 - Never invent. Every factual sentence in the body carries the source as an inline markdown link (`[descrição curta](url)`) — never the old `[Fn]` marker, never italic text without a link ("Sync Squad X no Granola"). If a sub-agent returned a meeting evidence without a permalink URL, drop the fact or move it to `## Não verificado`; do not render meeting citations as descriptive italic. Never guess a next step or a date.
+- A topic may be shared by several subjects. Evidence about a person who belongs to **another** subject still appears in this report as context of the topic, with the suffix `(via {{Outro Time}})` after the fact, but never becomes an action, pending item, risk, decision or next step of this subject — the other subject's report owns it. The rule and how to resolve the person's team are in `evidence.md → Pertencimento`.
 - Every action, pending item, risk and next step names who is accountable. When the evidence names someone (`who:`), use that name. When it does not, write the subject's default accountable, marked as default so the reader can tell it from an assignment stated by the source: team → `{{PM}} e {{Tech Lead}} (padrão)`; forum → `{{facilitator}} (padrão)`; person → `{{the person}} (padrão)`. Never pick any other person.
 - Every task/issue key from the tracker (`ABC-123`, `PROJ-42` — any `{{UPPERCASE}}-{{number}}` shape) that appears anywhere in the report MUST be rendered as a markdown link to the item in the tracker. Build the URL from `config.json → workspaces.{{active}}.tools.tracker`: for `tool: "jira"`, `{{url}}/browse/{{KEY}}` (ex.: `[ABC-123](https://acme.atlassian.net/browse/ABC-123)`); for `tool: "linear"`, `{{url}}/issue/{{KEY}}`; other trackers follow their own convention. Never write the key as plain text. Applies ao resumo executivo, bullets de tópicos, ações, entregas, riscos e decisões. When `tools.tracker.url` is missing from `config.json`, set `STATUS: WARN`, deixe as chaves como texto puro e sinalize no summary pedindo pro usuário rodar `/mgr-setup` pra completar; não invente base URL.
 - Every person name that appears anywhere in the report (resumo executivo, tópicos, ações, riscos, decisões) MUST be rendered as a wikilink-style markdown link to the matching Person note, relative to the report's folder: `[Nome da Pessoa](../../people/Nome da Pessoa.md)` (the report lives in `WS/reports/{{YYYY-MM}}/`, people in `WS/people/`). When a Person note does not exist for that name, still write the link with the expected path — the reader will follow it and create the note if needed. Applies to both cited names and default accountables (still include the "(padrão)" suffix outside the link).
@@ -55,6 +56,8 @@ Read at the step that needs them: `${CLAUDE_PLUGIN_ROOT}/references/evidence.md`
 
 Read what the workspace already knows and nothing more: `WS/AGENTS.md` (what matters this period, conventions such as which tracker column means done, registered channels); the subject note (board if any, people - PM and Tech Lead, or facilitator and members, or the person and her team - the `topics` frontmatter list, `## Fontes relacionadas` and `## Arquivos e assets`: channels, meetings and files that every report of this subject consults); the subject's topics (every `WS/topics/*.md` whose wikilink appears in the subject's `topics` frontmatter list - read the frontmatter, `## Fontes relacionadas`, `## Arquivos e assets`, current `status`; a topic may also appear in other subjects' `topics`, that is expected); the newest previous report of the subject, searched across every `WS/reports/*/` folder (frontmatter, farol table AND every `#### Ações e Pendências` block from each topic — specifically the `- [ ]` items that were left open, keeping the original responsible, description, source link and the original date + link to the report they came from); `config.json` (`referenceFolders` and `sources`, which together are the `localFolders` where notes or transcripts may live).
 
+Also collect, from the subject note and from `WS/people/*.md`, the **people of the subject** (team: every person whose `isPartOf` links to it, plus PM and Tech Lead; forum: facilitator and members; person: herself). This set decides what is an action of this subject and what is context from another team (`evidence.md → Pertencimento`).
+
 The open action items (`- [ ]`) collected from the previous report must be carried over into the corresponding topic's `#### Ações e Pendências` in the new report, on top of any new items identified in the current period. Never re-include items already marked `- [x]` in past reports. If an open item from the previous report is verified as completed in this period's evidence, move it in as `- [x]` with the new evidence link and keep the original date and origin report link.
 
 A subject without topics still gets a report; the topic sections say so and point to `/mgr-setup --topic`.
@@ -67,9 +70,22 @@ Merge what comes back. Drop items without a source. A source whose connector was
 
 Record every `learned:` line now, where it belongs.
 
+## Step 3.5 — Recheck the open items at their source
+
+Every `- [ ]` carried over from the previous report whose inline source link points to a tool a sub-agent owns is rechecked **at that link**, not only through the period sweep. Group them by tool (messenger permalink → `source-messenger`; issue URL or key → `source-tracker`; meeting page → `source-meetings`), build one `mode: recheck` brief per tool in the shape of `evidence.md → Recheck brief` (one `items:` entry per open item, with `what`, `source` and the date it was first recorded) and invoke those sub-agents in parallel, once. Items whose source is a local file the session can read are rechecked by reading the file. Items with no link are not rechecked.
+
+Apply what comes back when writing the item in `#### Ações e Pendências`:
+
+- `resolved`: write the item as `- [x]`, keeping the original responsible, description, original source link and the original date + link to the report it came from, and add one sub-bullet below it: `  - Resolvido em {{date}}: {{one sentence from the recheck}} ([fonte](url))`, with any person name linked.
+- `updated`: the item stays `- [ ]` and gets one sub-bullet: `  - Atualização em {{date}}: {{one sentence}} ([fonte](url))`.
+- `unchanged`: the item stays `- [ ]` with no sub-bullet.
+- `unreachable`: the item stays `- [ ]` with a sub-bullet `  - Não foi possível verificar na fonte em {{today}}: {{reason}}`, and `STATUS: WARN`.
+
+A recheck never creates a new item, never changes an item's wording and never reopens an item already `- [x]`. A `resolved` recheck that is also a delivery of the period may feed `## Entregas no período` with its own source.
+
 ## Step 4 — Write the report
 
-Read `${CLAUDE_PLUGIN_ROOT}/skills/mgr-status-report/templates/Report.md` and fill it: `WS/reports/{{YYYY-MM of today}}/Report - {{Subject Name}} - {{periodEnd}}.md`. The month folder is the month the report is created (`created`, today), not the month of the period; create it when it does not exist. Suffix `-2`, `-3` when a report with that name already exists in any `WS/reports/*/` folder. Links to the previous report and to the reports where carried-over action items came from point to the month folder where each of those reports actually is (`../{{YYYY-MM}}/Report - ....md`). `owner` in the frontmatter is the wikilink to the subject from Step 1; the subject type is not written, it follows from the folder of the owner note (`teams/`, `forums/`, `people/`). Apply the farol rule from `evidence.md` per topic. Every section of the template is present; a section with nothing says "Nenhum identificado nas fontes consultadas". `topic: unknown` and `topic: subject` evidence goes to the subject-level sections. Frontmatter lists are `[]` when empty; `previousReport` is omitted on the first report. No placeholder survives.
+Read `${CLAUDE_PLUGIN_ROOT}/skills/mgr-status-report/templates/Report.md` and fill it: `WS/reports/{{YYYY-MM of today}}/Report - {{Subject Name}} - {{periodEnd}}.md`. The month folder is the month the report is created (`created`, today), not the month of the period; create it when it does not exist. Suffix `-2`, `-3` when a report with that name already exists in any `WS/reports/*/` folder. Links to the previous report and to the reports where carried-over action items came from point to the month folder where each of those reports actually is (`../{{YYYY-MM}}/Report - ....md`). `owner` in the frontmatter is the wikilink to the subject from Step 1; the subject type is not written, it follows from the folder of the owner note (`teams/`, `forums/`, `people/`). Apply the farol rule from `evidence.md` per topic (evidence from people of other subjects counts for the farol, since it is about the topic, but never as an action of this subject). Apply `evidence.md → Pertencimento` to every fact before placing it, and the Step 3.5 rechecks to every carried-over item. Every section of the template is present; a section with nothing says "Nenhum identificado nas fontes consultadas". `topic: unknown` and `topic: subject` evidence goes to the subject-level sections. Frontmatter lists are `[]` when empty; `previousReport` is omitted on the first report. No placeholder survives.
 
 ## Step 5 — Update topic notes
 
@@ -107,7 +123,7 @@ The same rules as a new report apply to every fact written: inline source link, 
 **Edit the report.** Read the template once if unsure of a section. Edit only what the new evidence touches, section by section:
 
 - Add the new facts to the topic sections, deliveries, risks, decisions and `#### Ações e Pendências` where they belong. `topic: unknown` and `topic: subject` go to the subject-level sections.
-- An open `- [ ]` that the new evidence shows done becomes `- [x]` with the new source link, keeping its original date and origin link.
+- An open `- [ ]` that the new evidence shows done becomes `- [x]` with the new source link, keeping its original date and origin link, plus the `  - Resolvido em {{date}}: ...` sub-bullet of Step 3.5. New material that only moves an item forward adds the `  - Atualização em {{date}}: ...` sub-bullet and leaves it `- [ ]`. `--update` does not run Step 3.5 rechecks on its own; it only applies what the user handed over.
 - An item in `## Não verificado` that the new material now sources moves to its section with the link.
 - Re-apply the farol rule to each topic that got new evidence, counting old and new evidence together; update its row in `## Farol por tópico` ("Farol anterior" stays as it was).
 - Update `## Resumo executivo` only if the new facts change what leadership needs to know; still up to 100 words, every item sourced.
@@ -122,13 +138,13 @@ Record `learned:` lines and any recurring channel, meeting or folder found in th
 
 ## Summary
 
-`STATUS: OK | WARN | BLOCKED` first. `WARN` when a source was not consulted, a topic had no evidence, evidence was cut, a farol changed silently, or the subject has no board (`TBD`). Then, briefly: report path, period, sources consulted and skipped with reasons, farol changes, what was learned and recorded, items in `## Não verificado`, and the natural next step.
+`STATUS: OK | WARN | BLOCKED` first. `WARN` when a source was not consulted, a topic had no evidence, evidence was cut, a farol changed silently, an open item could not be rechecked at its source, or the subject has no board (`TBD`). Then, briefly: report path, period, sources consulted and skipped with reasons, farol changes, what was learned and recorded, items in `## Não verificado`, and the natural next step.
 
 In update mode the summary is an update report, in the chat, with these blocks in this order (a block with nothing says "nenhum"). Every line names the section or note it refers to and carries the source link:
 
 1. **Report atualizado**: path, and the material received (files, links, text) with what was consulted and what was not, and why.
 2. **Modificado**: facts added, per report section; items moved out of `## Não verificado`; executive summary adjusted or not; frontmatter fields changed.
-3. **Marcado como concluído**: every `- [ ]` flipped to `- [x]`, with its accountable and the new source.
+3. **Marcado como concluído**: every `- [ ]` flipped to `- [x]`, with its accountable and the new source. In a normal run, this block also lists the Step 3.5 rechecks: items closed at the source, items that only got an update, and items that could not be verified, each with the link.
 4. **Farol**: every topic whose farol changed (previous → new, reason), in the report and in the topic note, and whether it was applied without confirmation.
 5. **Contradições**: each fact of the new material that conflicts with one already in the report, both sides with their sources and dates. The skill does not decide which one is right.
 6. **Atualizar manualmente**: what the new material says but this skill cannot or must not write, each with where it should go and the command when there is one. For example: a fact that fits no topic of the subject (`/mgr-topic --add`); a change of deadline, scope or description of a topic (`dueDate`, `description`, `## Contexto` are never edited here); a new person or source for the subject (`/mgr-setup --person`, `/mgr-setup --source`); pasted text that needs a link to leave `## Não verificado`; a contradiction the user must resolve in the report.
@@ -140,6 +156,8 @@ In update mode the summary is an update report, in the chat, with these blocks i
 - Write a factual sentence without an inline source link, or fall back to the old `[Fn]` marker format.
 - Write a person's name in the report without wrapping it as `[Nome](../../people/Nome.md)`.
 - Write a tracker key (`ABC-123`, `PROJ-42`) as plain text — always link to the item URL.
+- Turn evidence about a person of another subject into an action, pending item, risk, decision or next step of this report.
+- Mark an item `- [x]` from a recheck that is not `resolved`, reopen an item already `- [x]`, or reword a carried-over item.
 - Report on more than one subject in one run, or create tasks, stories or specs.
 - Overwrite or regenerate a report (`--update` only adds to it), rewrite a note, or change a topic's `description`, `id`, `created`, `dueDate` or `isPartOf`.
 - Write outside `WS` and `config.json`, or inside `${CLAUDE_PLUGIN_ROOT}`.
