@@ -1,5 +1,4 @@
 {
-  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "eis-manager-assistant",
   "displayName": "Manager Assistant",
   "description": "Assistente para líderes de produto e tecnologia acompanharem times e projetos: status reports com fontes verificáveis, contexto por workspace/time/tópico e memória persistente.",
