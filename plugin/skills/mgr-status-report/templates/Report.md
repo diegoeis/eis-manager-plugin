@@ -28,13 +28,19 @@ Período: {{YYYY-MM-DD}} a {{YYYY-MM-DD}}. Gerado em {{YYYY-MM-DD}} a partir das
 
 ### {{Topic Name}}
 
+{Em Avanços, Riscos e bloqueios e Próximos passos, os itens são agrupados pela data da evidência (`date`), num sub-bullet `**MM-DD**` por dia, do dia mais recente para o mais antigo; dentro do dia, também do mais recente para o mais antigo. Dias sem itens não aparecem. Quando o período tem um único dia (`periodStart` igual a `periodEnd`), não há agrupamento: os itens ficam direto sob o rótulo.}
+
 - Farol: {{on_track | in_risk | problem}}
 - **Avanços:**
-  - {{itens entregues ou movidos no período, cada um com a fonte linkada inline; nomes de pessoas linkados como [Nome](../../people/Nome.md). Quando o fato é de pessoa de outro time que compartilha este tópico, acrescente o sufixo "(via {{Outro Time}})" no fim da linha}}
+  - **{{MM-DD}}**
+    - {{itens entregues ou movidos nesse dia, cada um com a fonte linkada inline; nomes de pessoas linkados como [Nome](../../people/Nome.md). Quando o fato é de pessoa de outro time que compartilha este tópico, acrescente o sufixo "(via {{Outro Time}})" no fim da linha}}
 - **Riscos e bloqueios:**
-  - {{o que ameaça o tópico, com a fonte linkada inline; "Nenhum identificado nas fontes consultadas" quando não houver}}
+  - **{{MM-DD}}**
+    - {{o que ameaça o tópico, registrado nesse dia, com a fonte linkada inline}}
+  - {{sem nada no período: um único item "Nenhum identificado nas fontes consultadas", sem data}}
 - **Próximos passos:**
-  - {{o que as fontes indicam como próximo, com a fonte linkada inline; nunca inventar. Responsável linkado como [Nome](../../people/Nome.md); sem citação, "[{{responsável padrão}}](../../people/{{responsável padrão}}.md) (padrão)"}}
+  - **{{MM-DD}}**
+    - {{o que as fontes desse dia indicam como próximo, com a fonte linkada inline; nunca inventar. Responsável linkado como [Nome](../../people/Nome.md); sem citação, "[{{responsável padrão}}](../../people/{{responsável padrão}}.md) (padrão)"}}
 
 #### Ações e Pendências
 

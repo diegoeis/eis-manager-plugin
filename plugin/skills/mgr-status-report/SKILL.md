@@ -122,7 +122,7 @@ The same rules as a new report apply to every fact written: inline source link, 
 
 **Edit the report.** Read the template once if unsure of a section. Edit only what the new evidence touches, section by section:
 
-- Add the new facts to the topic sections, deliveries, risks, decisions and `#### Ações e Pendências` where they belong. `topic: unknown` and `topic: subject` go to the subject-level sections.
+- Add the new facts to the topic sections, deliveries, risks, decisions and `#### Ações e Pendências` where they belong. `topic: unknown` and `topic: subject` go to the subject-level sections. In a topic's Avanços, Riscos e bloqueios and Próximos passos, put each fact under the `**MM-DD**` group of its date (create the group in date order, newest first), as the template says.
 - An open `- [ ]` that the new evidence shows done becomes `- [x]` with the new source link, keeping its original date and origin link, plus the `  - Resolvido em {{date}}: ...` sub-bullet of Step 3.5. New material that only moves an item forward adds the `  - Atualização em {{date}}: ...` sub-bullet and leaves it `- [ ]`. `--update` does not run Step 3.5 rechecks on its own; it only applies what the user handed over.
 - An item in `## Não verificado` that the new material now sources moves to its section with the link.
 - Re-apply the farol rule to each topic that got new evidence, counting old and new evidence together; update its row in `## Farol por tópico` ("Farol anterior" stays as it was).
