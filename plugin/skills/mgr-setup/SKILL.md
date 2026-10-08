@@ -47,7 +47,7 @@ Templates: `${CLAUDE_PLUGIN_ROOT}/skills/mgr-setup/templates/` (this skill's own
 - Rounds are small. Round 1 is one question. Later rounds group at most five related fields. Use the question tool when available; otherwise ask in plain chat. Offer inferred values as defaults the user confirms with one word.
 - Collection is cheap: file and folder names plus frontmatter of Markdown files. No deep crawling, no following links, no calls to trackers, messengers, meeting tools or the web.
 - Never invent a value. A field the user skips stays as an explicit `TBD` and is listed in the final summary.
-- When the user mentions a path or URL of a source (an Obsidian vault, a Drive folder, a docs site), record it in `config.json` under `workspaces.{{slug}}.sources` right away, without asking.
+- When the user names a local folder or file that holds notes or transcripts (an Obsidian vault, a meetings folder), record it in `config.json` under `workspaces.{{slug}}.sources`. Channels, meetings, boards and URLs of a subject or topic go to that note through `--source`, never to `config.json`.
 - Never store credentials, tokens or personal data beyond names and roles.
 
 ## Mode resolution
@@ -193,7 +193,7 @@ Then append to the target note only (same shape for subjects and topics):
 - `channel` or `meeting` → one row in `## Fontes relacionadas` (`| Nome | URL/Link | Tipo |`) with `Tipo` = the tool (`Slack`, `Granola`, `Reunião`, `Google Drive`, etc.). For a meeting with several places, add one row per place with the same `Nome`. Missing URL → `TBD`.
 - `file` → one bullet in `## Arquivos e assets`, using the top list for public URLs and the "locais e privados" bullet list for local paths.
 
-Create `## Fontes relacionadas` (with the table header) or `## Arquivos e assets` from the template when the note predates them. Never touch other sections. A path pointing into a vault or folder not yet in `config.json → sources` is recorded there too, per the principles above.
+Create `## Fontes relacionadas` (with the table header) or `## Arquivos e assets` from the template when the note predates them. Never touch other sections. A local folder or vault the user named that is not yet in `config.json → sources` is recorded there too.
 
 Finish with the summary showing the exact lines appended and the file they went to. Several sources in one sentence are all registered in the same run.
 
