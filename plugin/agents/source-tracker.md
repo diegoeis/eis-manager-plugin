@@ -8,7 +8,7 @@ You read one tracker board for one subject (a team, a forum or a person) and ret
 
 ## What you are looking for
 
-Within the period, for the board in the brief: what reached done, what moved, what is blocked or flagged, what is past its due date and still open. When the brief carries `assignee`, restrict to items assigned to or reported by that person, plus items of the brief's topics whoever holds them. Use the workspace conventions in the brief (`doneStatuses`, `blockedStatuses`) when they exist; otherwise use the tracker's own notion of done and blocked. Query the tool the way the tool works best; keep requests narrow (keys, titles, statuses, dates, assignee, parent or epic) and open descriptions or comments only when a blocker needs a reason.
+Within the period, for the board in the brief: what reached done, what moved, what is blocked or flagged, what is past its due date and still open. When the brief carries `assignee`, restrict to items assigned to or reported by that person, plus items of the brief's topics whoever holds them. Use the workspace conventions in the brief (`doneStatuses`, `doingStatuses`, `blockedStatuses`) when they exist; otherwise use the tracker's own notion of done and blocked. Query the tool the way the tool works best; keep requests narrow (keys, titles, statuses, dates, assignee, parent or epic) and open descriptions or comments only when a blocker needs a reason.
 
 If no tool in the session reaches the tracker, or the first call fails for access, return an empty `evidence:` with the reason in `coverage.failed` and stop. Do not use the web or another tracker as a substitute. A query that errors is not "no results": adjust it once, and if it still fails, record it in `coverage.failed`.
 
@@ -22,6 +22,4 @@ A brief that starts with `mode: recheck` carries a list of open items, each with
 
 ## Output
 
-Facts in the brief's language, one issue per item, with the issue link as `source` and the assignee as `who`. Replace customer names with "cliente". Prefer deliveries, blockers and decisions when you must cut, and say how many were cut. An empty result is valid; an invented one is not.
-
-If you notice something the skill would want to reuse next time (the board's real done column, a label the board uses for blockers, an epic that maps to a topic), put it in a final `learned:` line so the skill can record it.
+Facts in the brief's language, one issue per item, with the issue link as `source` and the assignee as `who`. Fill the `tracker:` field of every item (status and whether it is a doing, waiting or done status, assignee or "sem responsável", priority, due date, flagged). Return every flagged open item of the brief's topics, even unchanged ones, keys and topic only, so the skill can count them. For open items, also check the parent and the issues it blocks: when one of them is open, has priority High or above and is due within the next 3 days, add its key, priority and due date to `tracker:`. Do not return "sem mudança" items: an issue whose state did not change in the period is evidence only when it is flagged, overdue, or open with priority High or above and due within the next 3 days. Replace customer names with "cliente". Prefer deliveries, blockers and decisions when you must cut, and say how many were cut. An empty result is valid; an invented one is not.

@@ -12,7 +12,7 @@ previousReport: "[[Report - {{Subject Name}} - {{YYYY-MM-DD}}]]"
 
 # Status report - {{Subject Name}} - {{YYYY-MM-DD}}
 
-Período: {{YYYY-MM-DD}} a {{YYYY-MM-DD}}. Gerado em {{YYYY-MM-DD}} a partir das fontes listadas em [[#Fontes consultadas]].
+Período: {{YYYY-MM-DD}} a {{YYYY-MM-DD}}.
 
 ## Resumo executivo
 
@@ -20,40 +20,42 @@ Período: {{YYYY-MM-DD}} a {{YYYY-MM-DD}}. Gerado em {{YYYY-MM-DD}} a partir das
 
 ## Farol por tópico
 
-| Tópico                     | Farol anterior | Farol atual | Por quê |
-| -------------------------- | -------------- | ----------- | ------- |
-| [[{{Topic Name}}]] | {{on_track | in_risk | problem | TBD}} | {{on_track | in_risk | problem | TBD (só quando não houve evidência)}} | {{Uma frase com a fonte linkada inline, ou "sem evidência no período"}} |
+| Tópico | Farol | Por quê |
+| --- | --- | --- |
+| [[{{Topic Name}}]] | {{on_track | in_risk | problem | TBD (só quando não houve evidência)}} | {{Uma frase com a fonte linkada inline, ou "sem evidência no período". No --update, a frase é substituída, nunca acumulada}} |
 
 ## Tópicos e temas
 
 ### {{Topic Name}}
 
-{Em Avanços, Riscos e bloqueios e Próximos passos, os itens são agrupados pela data da evidência (`date`), num sub-bullet `**MM-DD**` por dia, do dia mais recente para o mais antigo; dentro do dia, também do mais recente para o mais antigo. Dias sem itens não aparecem. Quando o período tem um único dia (`periodStart` igual a `periodEnd`), não há agrupamento: os itens ficam direto sob o rótulo.}
+{Em Avanços, Riscos e bloqueios e Próximos passos, os itens são agrupados pela data da evidência (`date`), num sub-bullet `**YYYY-MM-DD**` por dia, do dia mais recente para o mais antigo; dentro do dia, também do mais recente para o mais antigo. Dias sem itens não aparecem. Quando o período tem um único dia (`periodStart` igual a `periodEnd`), não há agrupamento: os itens ficam direto sob o rótulo.}
 
-- Farol: {{on_track | in_risk | problem}}
+- **Farol:** {{on_track | in_risk | problem}}
 - **Avanços:**
-  - **{{MM-DD}}**
+  - **{{YYYY-MM-DD}}**
     - {{itens entregues ou movidos nesse dia, cada um com a fonte linkada inline; nomes de pessoas linkados como [Nome](../../people/Nome.md). Quando o fato é de pessoa de outro time que compartilha este tópico, acrescente o sufixo "(via {{Outro Time}})" no fim da linha}}
 - **Riscos e bloqueios:**
-  - **{{MM-DD}}**
-    - {{o que ameaça o tópico, registrado nesse dia, com a fonte linkada inline}}
+  - **{{YYYY-MM-DD}}**
+    - {{o que ameaça o tópico, registrado nesse dia, com a fonte linkada inline. Inclui itens do tracker bloqueados ou vencidos que não viraram ação. Nunca "segue sem mudança"; alertas automáticos somados numa linha só}}
   - {{sem nada no período: um único item "Nenhum identificado nas fontes consultadas", sem data}}
 - **Próximos passos:**
-  - **{{MM-DD}}**
+  - **{{YYYY-MM-DD}}**
     - {{o que as fontes desse dia indicam como próximo, com a fonte linkada inline; nunca inventar. Responsável linkado como [Nome](../../people/Nome.md); sem citação, "[{{responsável padrão}}](../../people/{{responsável padrão}}.md) (padrão)"}}
 
 #### Ações e Pendências
 
-{Lista consolidada das ações e pendências. Inclui: (a) itens abertos ([ ]) herdados dos reports anteriores que ainda não foram marcados como concluídos, mantendo a data original e o link para o report onde surgiram; (b) itens novos identificados neste período. Nunca inclua itens já marcados com [x] em reports anteriores. Nomes dos responsáveis sempre linkados ao arquivo Person correspondente.}
+{Poucos itens, cada um algo que uma pessoa tem de entregar. Só entra o que passa no teste do Step 4 da skill: dono citado pela fonte (nunca "(padrão)"), entregável concreto, pessoa do próprio sujeito, e nada de manutenção do tracker, comunicar/responder/alinhar, mensagem solta de thread, decisão ou alerta. Item do tracker só entra se estiver em execução (nunca Ready to Dev, backlog ou espera), com responsável, e se ele (ou o pai/item que ele bloqueia) for High ou acima e vencer nos próximos 3 dias. Itens bloqueados viram uma linha só por tópico: "Hoje existem N tasks bloqueadas", com os links. O resto vai para Riscos e bloqueios, Decisões ou Próximos passos.}
 
-{Só entram itens de pessoas do próprio sujeito deste report. Fato de pessoa de outro time, num tópico compartilhado, fica como contexto em **Avanços** ou **Riscos e bloqueios** com o sufixo "(via {{Outro Time}})" e nunca vira item aqui.}
+{Inclui: (a) itens abertos herdados do report anterior que ainda passam no teste, com a data ➕ original e o link de origem; (b) itens novos do período. Mesma fonte ou mesmo entregável é o mesmo item: a novidade vira sub-bullet datado, nunca item novo e nunca texto dentro da linha. Nunca inclua itens [x] ou [-] de reports anteriores.}
 
-{Itens herdados cuja fonte é um link (mensagem no messenger, issue, reunião) são reverificados na própria fonte: resolvido vira [x] com sub-bullet "Resolvido em"; novidade sem fechamento continua [ ] com sub-bullet "Atualização em"; fonte inacessível continua [ ] com sub-bullet de não verificado.}
+{Itens herdados cuja fonte é um link são reverificados na própria fonte: resolvido vira [x] com ✅ e sub-bullet datado; novidade sem fechamento continua [ ] com sub-bullet datado; fonte inacessível continua [ ] com sub-bullet de não verificado. Linhas começam na coluna 0, sem espaços antes do "-".}
 
-  - [ ] [{{Nome do Responsável}}](../../people/{{Nome do Responsável}}.md) - {{Descrição da ação ou pendência, com a fonte linkada inline quando houver}} - [{{YYYY-MM-DD}}](../{{YYYY-MM}}/Report - {{Subject Name}} - {{YYYY-MM-DD}}.md)
-    - Atualização em {{YYYY-MM-DD}}: {{o que a fonte original diz de novo, sem fechar o item}} ([fonte]({{url}}))
-  - [x] [{{Nome do Responsável}}](../../people/{{Nome do Responsável}}.md) - {{Decisão tomada ou item concluído neste período, com a fonte linkada inline quando houver}} - [{{YYYY-MM-DD}}](../{{YYYY-MM}}/Report - {{Subject Name}} - {{YYYY-MM-DD}}.md)
-    - Resolvido em {{YYYY-MM-DD}}: {{a resposta na fonte que resolveu o item}} ([fonte]({{url}}))
+- [ ] [{{Tech Lead}}](../../people/{{Tech Lead}}.md) - Hoje existem {{N}} tasks bloqueadas: [{{ABC-123}}]({{url}}), [{{ABC-456}}]({{url}}) ➕ {{YYYY-MM-DD}}
+- [ ] [{{Nome do Responsável}}](../../people/{{Nome do Responsável}}.md) - {{Descrição do entregável}} ([fonte]({{url}})) ➕ {{YYYY-MM-DD}}
+- [ ] [{{Nome do Responsável}}](../../people/{{Nome do Responsável}}.md) - {{Descrição do item herdado, sem mudar o texto}} ([fonte]({{url}})) - [origem](../{{YYYY-MM}}/Report - {{Subject Name}} - {{YYYY-MM-DD}}.md) ➕ {{YYYY-MM-DD}}
+  - {{YYYY-MM-DD}}: {{o que a fonte diz de novo, sem fechar o item}} ([fonte]({{url}}))
+- [x] [{{Nome do Responsável}}](../../people/{{Nome do Responsável}}.md) - {{Descrição do item concluído}} ([fonte]({{url}})) - [origem](../{{YYYY-MM}}/Report - {{Subject Name}} - {{YYYY-MM-DD}}.md) ➕ {{YYYY-MM-DD}} ✅ {{YYYY-MM-DD}}
+  - {{YYYY-MM-DD}}: {{a resposta na fonte que resolveu o item}} ([fonte]({{url}}))
 
 
 ## Entregas no período

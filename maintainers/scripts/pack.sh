@@ -12,7 +12,7 @@
 # em maintainers/.
 #
 # Uso (a partir da raiz do repo ou de maintainers/scripts/):
-#   ./maintainers/scripts/pack.sh           → gera maintainers/<name>-v<version>.zip
+#   ./maintainers/scripts/pack.sh           → gera maintainers/<name>-v<version>.zip (ou <name>.zip sem version)
 #   ./maintainers/scripts/pack.sh --tar     → gera maintainers/<name>-v<version>.tar.gz
 
 set -euo pipefail
@@ -22,8 +22,13 @@ MAINTAINERS_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 REPO_ROOT="$(cd "$MAINTAINERS_DIR/.." && pwd)"
 PLUGIN_DIR="$REPO_ROOT/plugin"
 PLUGIN_NAME=$(grep -o '"name": "[^"]*"' "$PLUGIN_DIR/.claude-plugin/plugin.json" | head -1 | cut -d'"' -f4)
-VERSION=$(grep -o '"version": "[^"]*"' "$PLUGIN_DIR/.claude-plugin/plugin.json" | cut -d'"' -f4)
-PACK_NAME="${PLUGIN_NAME}-v${VERSION}"
+# version é opcional no plugin.json; sem ela, o pacote sai sem sufixo de versão
+VERSION=$(grep -o '"version": "[^"]*"' "$PLUGIN_DIR/.claude-plugin/plugin.json" | cut -d'"' -f4 || true)
+if [[ -n "$VERSION" ]]; then
+  PACK_NAME="${PLUGIN_NAME}-v${VERSION}"
+else
+  PACK_NAME="${PLUGIN_NAME}"
+fi
 
 if [[ ! -d "$PLUGIN_DIR" ]]; then
   echo "Erro: pasta plugin/ nao encontrada em $REPO_ROOT" >&2

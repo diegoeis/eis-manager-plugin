@@ -33,7 +33,7 @@ topics:
 
 ## Fontes relacionadas
 
-Fontes consultadas pelo `mgr-status-report` em todo report deste fórum, além das fontes de cada tópico. Edite à mão ou use `/mgr-setup --source`; a skill também acrescenta aqui o que descobrir sozinha.
+Fontes consultadas pelo `mgr-status-report` em todo report deste fórum, além das fontes de cada tópico. Edite à mão ou use `/mgr-setup --source`.
 
 | Nome | URL/Link | Tipo |
 | --- | --- | --- |

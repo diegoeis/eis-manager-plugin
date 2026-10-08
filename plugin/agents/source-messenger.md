@@ -14,7 +14,11 @@ If no messenger tool is available or the first call fails, return an empty `evid
 
 ## What counts
 
-Decisions stated as made; work described as blocked or waiting and not resolved later in the period; deadlines, dependencies or scope changes flagged as risk; questions or requests left unanswered; things announced as shipped, merged or reached; and, rarely, context that changes how the period reads (someone out, priority change). Chatter, bare links, routine standup lines, and PR/MR, review, CI or deploy notifications (bot or human) are not evidence; "shipped" counts only when it names the feature or work item, not the merge.
+Decisions stated as made; work described as blocked or waiting and not resolved later in the period; deadlines, dependencies or scope changes flagged as risk; commitments a named person took or was given (`pending`); things announced as shipped, merged or reached; and, rarely, context that changes how the period reads (someone out, priority change). Chatter, bare links, routine standup lines, and PR/MR, review, CI or deploy notifications (bot or human) are not evidence; "shipped" counts only when it names the feature or work item, not the merge.
+
+Not `pending`: an open question, a request nobody took, "precisa avisar X", "vou dar uma olhada", a comment or mention in a thread. Return it as `risk` only when the message says it blocks work; otherwise leave it out.
+
+One item per thread: read the thread to its latest message and return a single item with the current state and the thread permalink, even when several messages in it matter. Bot and monitor alerts in a channel become at most one `risk` per channel per period that sums them, and only when nobody handled them.
 
 ## Recheck mode
 
@@ -25,5 +29,3 @@ Be strict about `resolved`: only a reply that states the problem is solved, the 
 ## Output
 
 One-sentence paraphrases in the brief's language, never long quotes, never customer names, phone numbers, emails or document numbers. `source` is the message permalink, or channel plus timestamp and author when there is none. `topic` follows the registered channel or the topic the message names; otherwise `unknown`. Prefer decisions, blockers and deliveries when you must cut, and say how many were cut. An empty result is valid.
-
-If you find a channel the workspace did not know about that clearly belongs to a topic or the subject, add it to a final `learned:` line so the skill can record it.

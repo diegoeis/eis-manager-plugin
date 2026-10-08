@@ -16,7 +16,7 @@ topics:
   - {{Topic Name}} | keywords: {{name, aliases, epic keys}} | channels: {{...}} | meetings: {{what: where, where, ...}} | files: {{...}}
 board: {{key and URL}}                          # tracker; absent when the subject has none (TBD)
 assignee: {{person name}}                       # tracker, person subjects only: restrict to items assigned to or reported by them
-doneStatuses / blockedStatuses: {{...}}         # tracker, when the workspace states them
+doneStatuses / doingStatuses / blockedStatuses: {{...}}   # tracker, when the workspace states them
 channels: {{subject channels from its `## Fontes relacionadas` (rows whose `Tipo` names a messenger tool), then workspace channels}}       # messenger; never DMs
 meetings: {{what: where, where, ... - from the subject's `## Fontes relacionadas` (rows whose `Tipo` names a meeting tool, grouped by `Nome`)}}  # meetings
 meetingTools: {{every place listed under a meeting in the subject or its topics, or "any"}}  # meetings
@@ -48,8 +48,8 @@ evidence:
   fact: {{one sentence, factual, no interpretation}}
   who: {{person named by the source, else omit}}
   source: {{URL, issue key, permalink, meeting title + date, file path}}
+  tracker: {{tracker items only - status, assignee or "sem responsável", priority, due YYYY-MM-DD, flagged yes/no, and the key of the parent or linked issue it blocks when that issue is open, priority High or above and due within 3 days}}
 
-learned: {{optional - things worth recording for next time: a channel, a recurring meeting, a folder, a board convention, an epic that maps to a topic}}
 ```
 
 Rules that keep the report honest:
@@ -61,6 +61,12 @@ Rules that keep the report honest:
 - No customer names, no personal data beyond team members' names, no long copies of messages or transcripts.
 - Pull requests, merge requests, code reviews, commits, pipelines and deploys are not evidence by themselves. Do not return "PR #42 aberto" or "MR aguardando review" as `pending`, `blocker` or `progress`. Return the work item they close when the source says it was delivered (`type: delivery`, source = the issue or the message announcing it); otherwise omit.
 - Meeting logistics are not evidence: calendar overlaps or conflicts between meetings, reschedules, cancellations, who attended or missed, meeting length. Omit them in any `type`.
+- `pending` is a commitment: a person named by the source took or was given something to deliver ("eu faço", "fica com X", an action item with owner in a meeting). An open question, a request nobody took, a comment or a mention in a thread is not `pending`; it is `risk` only when the source says it blocks work, otherwise omit it.
+- Action items from a meeting come from the meeting's own notes (the Granola or Tactiq summary's action items or next steps, the user's note of the meeting). Only when the meeting has no notes are they read from the transcript, and then only what someone explicitly took on. Never infer an action from discussion.
+- People's states of mind are not evidence: confidence, worry, opinion or mood, even when quoted. Return only the work fact the source states.
+- One item per thread or conversation. When several messages of the same thread matter, return one item with the latest state and the thread permalink, never one item per message.
+- Automatic alerts (bots, monitors, SLA reminders) are not one item per alert: at most one `risk` per channel per period summing them up ("N alertas de X entre DD/MM e DD/MM"), and only when nobody handled them.
+- "No change" is not evidence. Do not return "segue sem mudança", "sem novidade no Jira" or a repeat of a state already true before the period.
 - Keep it to what a report can use, roughly a dozen or so items; when cutting, keep deliveries, blockers and decisions and say how many were left out. Empty is valid.
 
 ## Recheck brief (open items from previous reports)
@@ -108,7 +114,6 @@ A topic can be shared by several subjects, so evidence mapped to a topic may be 
 - Every factual sentence in the report carries the evidence's `source` URL as an inline markdown link `[descrição curta](url)` — not the old `[Fn]` marker. A sentence with no item behind it goes to `## Não verificado` or is dropped. The `## Fontes consultadas` section is a consolidated list of the URLs used, not a numbered index the body points back to.
 - `coverage.failed` from every agent becomes "Fontes não consultadas".
 - `topic: unknown` and `topic: subject` items appear in the subject-level sections, never under a topic.
-- `learned:` lines are recorded where they belong (`## Fontes relacionadas` for channels/meetings and `## Arquivos e assets` for files; on the topic when it concerns a single topic, on the subject when it concerns the subject at large; workspace `AGENTS.md`; `config.json → sources`) so the next run starts from more.
 
 ## Farol rule
 

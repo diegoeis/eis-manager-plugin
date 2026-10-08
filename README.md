@@ -26,7 +26,7 @@ Este plugin acompanha **sujeitos** (times, fóruns, pessoas) e os **tópicos** d
 | **Workspace** | Uma empresa ou frente de atuação. Guarda a narrativa (`AGENTS.md`) e todas as notas. |
 | **Sujeito** | O que recebe report: um **time** (`Team`), um **fórum** (`Forum`, reunião recorrente de decisão, como um comitê de produto) ou uma **pessoa** acompanhada individualmente (`Person` com `tracked: true`). Os três funcionam do mesmo jeito. |
 | **Tópico** | Uma iniciativa, projeto ou tema com farol (`on_track`, `in_risk`, `problem`). Não tem dono único: vários sujeitos podem apontar para o mesmo tópico. |
-| **Fontes** | Canais, reuniões, boards e pastas registrados em cada sujeito e tópico. O plugin aprende novas fontes enquanto trabalha e as grava sozinho. |
+| **Fontes** | Canais, reuniões, boards e pastas registrados em cada sujeito e tópico. Mudam à mão ou por `/mgr-setup --source`. |
 | **Report** | `reports/<AAAA-MM>/Report - <Sujeito> - <data>.md`, gerado a partir de evidências e nunca regerado; `--update` acrescenta informações novas no próprio arquivo. |
 
 As relações entre notas vivem no frontmatter YAML, como wikilinks no estilo Obsidian (`[[Squad X]]`). As pastas só separam as notas por tipo (`teams/`, `forums/`, `people/`, `topics/`, `reports/<AAAA-MM>/`); nenhuma relação depende delas.
@@ -124,7 +124,7 @@ O plugin nunca grava na própria pasta de instalação. O estado fica numa pasta
 
 ```
 <raiz de dados>/                   padrão: <pasta conectada>/manager-assistant/
-  config.json                      workspace ativo, pastas de referência, URLs das ferramentas, fontes aprendidas
+  config.json                      workspace ativo, pastas de referência, URLs das ferramentas, fontes
   workspaces/
     <workspace-slug>/
       AGENTS.md                    narrativa do workspace

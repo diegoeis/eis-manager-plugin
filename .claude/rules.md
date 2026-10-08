@@ -20,7 +20,7 @@ Regras para quem desenvolve o plugin `eis-manager-assistant`. O PRD em `maintain
 - Toda afirmação factual em report ou análise cita a fonte (link, arquivo, reunião, mensagem). Sem fonte, a informação é marcada como não verificada ou omitida. Nunca inventar dados.
 - Não expor nomes de clientes, documentos pessoais ou dados sensíveis em artefatos gerados.
 - Skills e sub-agentes descrevem o que precisa ser verdade no resultado (fonte em toda afirmação, leitura só, o que nunca fazer) e o mínimo de procedimento. Não prescrever queries literais, listas de extensões, caps numéricos ou tabelas de sinônimos: o modelo resolve isso melhor no contexto real. Argumentos são texto livre; flags são convenção para scripts e agendamentos, e prosa vale o mesmo.
-- O plugin aprende conforme usa. Toda skill grava, na mesma execução e sem perguntar, o que descobriu e vai servir de novo: canais, reuniões, pastas de transcrições, convenções do board, palavras-chave que ligam itens a tópicos. Destino: `## Fontes` do tópico, `AGENTS.md` do workspace ou `config.json → sources`. O usuário nunca deve ter que informar a mesma fonte duas vezes.
+- O plugin não grava aprendizados por conta própria (removido em 2026-10-07; a decidir depois). Fontes de sujeito e tópico mudam só à mão ou por `/mgr-setup --source`.
 - Reports sempre preenchem um template de `plugin/skills/mgr-status-report/templates/`. Não existe template para o tipo pedido: a skill para com `STATUS: BLOCKED` dizendo quais tipos existem. (Criar e salvar templates novos depende de templates por workspace, no backlog.)
 
 ## Escopo

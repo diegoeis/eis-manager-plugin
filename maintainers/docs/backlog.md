@@ -27,6 +27,9 @@ Itens deliberadamente fora das fatias atuais. Cada item tem até 300 caracteres.
 
 - [ ] **Report consolidado multi-sujeito** (Fatia 4): um status report que agrega vários times, fóruns ou pessoas num período, com visão para C-level.
 - [ ] **Análise entrega × objetivo**: avaliar se o que foi priorizado tem chance real de mover os OKRs/KPIs definidos.
+- [ ] **Aprendizado de fontes (learnings)**: removido em 2026-10-07 por custo de tokens e pouco efeito na precisão. Repensar onde gravar e como o aprendizado chega ao brief antes de voltar.
+- [ ] **Alerta de ação parada**: apontar no resumo itens de `#### Ações e Pendências` sem movimento há 3 ou mais reports.
+- [ ] **Ready to Dev fora dos reports**: registrar no `AGENTS.md` do workspace a regra do central-docs (itens em Ready to Dev não entram em report).
 - [ ] **Detecção de tópicos urgentes**: varrer fontes e apontar o que ameaça entregas ou indicadores do período.
 - [ ] **Avaliação da quebra de backlog**: medir se as tarefas foram fatiadas pequenas o suficiente para entregas rápidas de valor.
 - [ ] **Métricas de fluxo**: throughput (itens em DONE no período) e leadtime (média em dias úteis do primeiro in-progress até DONE), conforme bases canônicas do PRD. A tabela "Entregas no período" do report já lista os itens DONE; falta o cálculo e a comparação com períodos anteriores.
