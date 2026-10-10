@@ -6,7 +6,7 @@
 # Este arquivo NAO deve ser executado diretamente. Ele serve como base para a IA
 # gerar um `pack.sh` customizado numa nova instalacao/plugin. Peca a IA para:
 #
-#   "Leia maintainers/scripts/pack.template.sh e gere um maintainers/scripts/pack.sh
+#   "Leia scripts/pack.template.sh e gere um scripts/pack.sh
 #    para este plugin, substituindo os marcadores {{...}} pelos valores corretos."
 #
 # MARCADORES A SUBSTITUIR:
@@ -20,12 +20,12 @@
 #
 # O QUE O SCRIPT GERADO FAZ:
 # Cria um .zip (ou .tar.gz) pronto para instalacao, excluindo .git, .DS_Store,
-# a pasta maintainers/ e outros arquivos que nao fazem parte do plugin.
-# O pacote final eh gerado em maintainers/.
+# as pastas docs/, scripts/ e outros arquivos que nao fazem parte do plugin.
+# O pacote final eh gerado em dist/.
 #
-# Uso (a partir da raiz do plugin ou de maintainers/scripts/):
-#   ./maintainers/scripts/pack.sh           → gera maintainers/<name>-v<version>.zip
-#   ./maintainers/scripts/pack.sh --tar     → gera maintainers/<name>-v<version>.tar.gz
+# Uso (a partir da raiz do plugin ou de scripts/):
+#   ./scripts/pack.sh           → gera dist/<name>-v<version>.zip
+#   ./scripts/pack.sh --tar     → gera dist/<name>-v<version>.tar.gz
 
 set -euo pipefail
 
@@ -42,7 +42,9 @@ EXCLUDE=(
   ".git*"
   ".DS_Store"
   "**/.DS_Store"
-  "maintainers/*"
+  "docs/*"
+  "scripts/*"
+  "dist/*"
   "maintainers"
   "${PLUGIN_NAME}"
   "*.zip"
@@ -55,7 +57,7 @@ EXCLUDE=(
 
 cd "$PLUGIN_DIR"
 
-# Remove pacotes anteriores em maintainers/
+# Remove pacotes anteriores em dist/
 rm -f "$MAINTAINERS_DIR"/*.zip "$MAINTAINERS_DIR"/*.tar.gz
 
 if [[ "${1:-}" == "--tar" ]]; then

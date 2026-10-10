@@ -155,7 +155,7 @@ Limites: um sujeito por execução; não cria tarefas, histórias ou specs; não
 ## Estrutura
 
 ```
-plugin/
+src/
   .claude-plugin/plugin.json   manifesto
   skills/                      uma pasta por skill, com SKILL.md e templates/ próprios
     mgr-setup/templates/         AGENTS.md, CLAUDE.md, Team.md, Forum.md, Person.md
@@ -172,7 +172,7 @@ O plugin não grava nada dentro de sua pasta de instalação. O estado fica numa
 ## Instalação para desenvolvimento
 
 ```
-claude --plugin-dir /caminho/para/plugin
+claude --plugin-dir /caminho/para/src
 ```
 
-Empacotar: `./maintainers/scripts/pack.sh` (gera `maintainers/eis-manager-assistant-v{{versão}}.zip`).
+Empacotar: `./scripts/pack.sh` (gera `dist/eis-manager-assistant-v{{versão}}.zip`).

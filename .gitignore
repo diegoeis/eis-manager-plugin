@@ -1,9 +1,13 @@
 .DS_Store
 
 # Pacotes gerados pelo pack.sh
+dist/
 *.zip
 *.tar.gz
 old-files/
+
+# Lista local de padrões de dados pessoais (pack.sh)
+scripts/pii-patterns.txt
 
 # Arquivos locais do Claude Code
 .claude/settings.local.json

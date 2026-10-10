@@ -1,18 +1,18 @@
 # Regras do projeto
 
-Regras para quem desenvolve o plugin `eis-manager-assistant`. O PRD em `maintainers/docs/` é o horizonte; estas regras são o contrato de implementação.
+Regras para quem desenvolve o plugin `eis-manager-assistant`. O PRD em `docs/` é o horizonte; estas regras são o contrato de implementação.
 
 ## Layout do repositório
 
-- `plugin/` é o plugin. Só o que está aqui é empacotado. Nunca colocar docs de manutenção, planos ou arquivos locais dentro dela.
-- `maintainers/` guarda PRD, docs, scripts (`pack.sh`) e o pacote gerado.
+- `src/` é o plugin. Só o que está aqui é empacotado. Nunca colocar docs de manutenção, planos ou arquivos locais dentro dela.
+- `docs/` guarda PRD e backlog; `scripts/` guarda o `pack.sh` e scripts de teste; `dist/` recebe o pacote gerado (fora do git).
 - `.claude/` guarda estas regras e configuração local de desenvolvimento (não empacotada).
 
 ## Convenções do plugin
 
-- Skills em `plugin/skills/<nome>/SKILL.md`; sub-agentes em `plugin/agents/<nome>.md`; templates dentro da skill que os usa, em `plugin/skills/<nome>/templates/` (`mgr-setup` tem os das notas e do workspace, `mgr-status-report` tem `Report.md`) — cada skill é fechada em si mesma e nunca lê template de outra; conhecimento compartilhado entre skills em `plugin/references/` (`data-root.md`, `data-model.md`, `evidence.md`), referenciado via `${CLAUDE_PLUGIN_ROOT}/references/...`; templates via `${CLAUDE_PLUGIN_ROOT}/skills/<nome>/templates/...`. A primeira ação de toda skill é localizar o estado na pasta conectada, com a instrução inline no SKILL.md; references e templates são lidos só no passo que precisa deles, nunca todos de uma vez no início.
+- Skills em `src/skills/<nome>/SKILL.md`; sub-agentes em `src/agents/<nome>.md`; templates dentro da skill que os usa, em `src/skills/<nome>/templates/` (`mgr-setup` tem os das notas e do workspace, `mgr-status-report` tem `Report.md`) — cada skill é fechada em si mesma e nunca lê template de outra; conhecimento compartilhado entre skills em `src/references/` (`data-root.md`, `data-model.md`, `evidence.md`), referenciado via `${CLAUDE_PLUGIN_ROOT}/references/...`; templates via `${CLAUDE_PLUGIN_ROOT}/skills/<nome>/templates/...`. A primeira ação de toda skill é localizar o estado na pasta conectada, com a instrução inline no SKILL.md; references e templates são lidos só no passo que precisa deles, nunca todos de uma vez no início.
 - Frontmatter de SKILL.md usa só os campos do spec Agent Skills (`name`, `description`, `allowed-tools`, `license`, `compatibility`, `metadata`) para funcionar também no Cowork e em outros agentes. Flags e argumentos vão descritos na `description`, não em `argument-hint`. A `description` tem no máximo 1024 caracteres e não pode conter `<...>` — o validador de instalação lê como tag XML e rejeita o plugin (limites verificados em 2026-09-08 e 2026-09-09); o `pack.sh` checa os dois antes de zipar.
-- Placeholders em qualquer arquivo de `plugin/` (skills, agents, references, templates, README) usam `{{nome}}`, nunca `<nome>`: `<...>` quebra a renderização do markdown.
+- Placeholders em qualquer arquivo de `src/` (skills, agents, references, templates, README) usam `{{nome}}`, nunca `<nome>`: `<...>` quebra a renderização do markdown.
 - Prefixo das skills: `mgr-` (ex.: `mgr-setup`, `mgr-status-report`). Nomes em kebab-case, em inglês.
 - Conteúdo das skills em inglês. O idioma de saída segue o idioma em que o usuário escreve; não há campo de idioma na config e nunca se pergunta. Headings das notas e do report ficam em português como identificadores estáveis. (Idioma fixo por config está no backlog.)
 - Seguir a documentação oficial de plugins: https://docs.claude.com/en/docs/claude-code/plugins-reference. Em dúvida, consultar antes de inventar.
@@ -21,7 +21,7 @@ Regras para quem desenvolve o plugin `eis-manager-assistant`. O PRD em `maintain
 - Não expor nomes de clientes, documentos pessoais ou dados sensíveis em artefatos gerados.
 - Skills e sub-agentes descrevem o que precisa ser verdade no resultado (fonte em toda afirmação, leitura só, o que nunca fazer) e o mínimo de procedimento. Não prescrever queries literais, listas de extensões, caps numéricos ou tabelas de sinônimos: o modelo resolve isso melhor no contexto real. Argumentos são texto livre; flags são convenção para scripts e agendamentos, e prosa vale o mesmo.
 - O plugin não grava aprendizados por conta própria (removido em 2026-10-07; a decidir depois). Fontes de sujeito e tópico mudam só à mão ou por `/mgr-setup --source`.
-- Reports sempre preenchem um template de `plugin/skills/mgr-status-report/templates/`. Não existe template para o tipo pedido: a skill para com `STATUS: BLOCKED` dizendo quais tipos existem. (Criar e salvar templates novos depende de templates por workspace, no backlog.)
+- Reports sempre preenchem um template de `src/skills/mgr-status-report/templates/`. Não existe template para o tipo pedido: a skill para com `STATUS: BLOCKED` dizendo quais tipos existem. (Criar e salvar templates novos depende de templates por workspace, no backlog.)
 
 ## Escopo
 
@@ -33,7 +33,7 @@ Nunca gravar dentro de `${CLAUDE_PLUGIN_ROOT}` (muda a cada update).
 
 A raiz de dados é uma pasta que o usuário nomeia no setup. Ela guarda `config.json` e `workspaces/`. Motivo, confirmado em teste: no Cowork o plugin só grava dentro da pasta conectada à sessão; `${CLAUDE_PLUGIN_DATA}` e `~/.claude/` não são alcançáveis. Por isso o plugin nunca assume um local escondido. Default oferecido: `<pasta conectada>/manager-assistant/`, porque assim sessões futuras com a mesma pasta encontram o estado sem perguntar.
 
-Para reencontrar a raiz, toda skill segue `plugin/references/data-root.md`: (1) path dado pelo usuário no pedido, como flag `--data-root` ou em prosa, que vence quando presente e é o caminho para agendamentos e outros agentes sem pasta conectada; (2) `config.json` na pasta conectada, em `manager-assistant/` dentro dela ou um nível abaixo; (3) pergunta o path, só em `--interactive` ou no `mgr-setup`; em modo silencioso sem (1) nem (2), `BLOCKED`. Nada além disso: sem ponteiro, sem procurar em `~/.claude/` ou `${CLAUDE_PLUGIN_DATA}`, sem subir diretórios. Cada tentativa fora da pasta conectada é uma leitura que falha no Cowork e confunde o fluxo.
+Para reencontrar a raiz, toda skill segue `src/references/data-root.md`: (1) path dado pelo usuário no pedido, como flag `--data-root` ou em prosa, que vence quando presente e é o caminho para agendamentos e outros agentes sem pasta conectada; (2) `config.json` na pasta conectada, em `manager-assistant/` dentro dela ou um nível abaixo; (3) pergunta o path, só em `--interactive` ou no `mgr-setup`; em modo silencioso sem (1) nem (2), `BLOCKED`. Nada além disso: sem ponteiro, sem procurar em `~/.claude/` ou `${CLAUDE_PLUGIN_DATA}`, sem subir diretórios. Cada tentativa fora da pasta conectada é uma leitura que falha no Cowork e confunde o fluxo.
 
 Pastas de referência (as que o usuário aponta para inferência) são só lidas, nunca recebem estado. Skills que não são `mgr-setup` param com `STATUS: BLOCKED` quando não há `config.json`.
 
@@ -68,7 +68,7 @@ As relações entre workspace, times, tópicos e pessoas vivem no frontmatter, v
       memory/                        # Fatia 3
 ```
 
-Templates customizados por workspace ficam no backlog; hoje só existem os de `plugin/skills/<nome>/templates/`.
+Templates customizados por workspace ficam no backlog; hoje só existem os de `src/skills/<nome>/templates/`.
 
 Nomes de pasta em kebab-case. Nomes de arquivo em Title Case, iguais ao `name` e ao H1 da nota, sem prefixo de tipo: a pasta já diz o tipo. Só reports têm prefixo: `Report - <Subject Name> - <YYYY-MM-DD>.md`. Como o wikilink não leva pasta, nomes são únicos no workspace inteiro (entre times, fóruns, pessoas e tópicos); a skill que cria uma nota com nome já usado pergunta outro ou para com `BLOCKED`. Wikilink nunca leva pasta; links markdown para pessoas em reports e tópicos são relativos (`../../people/...` de um report, `../people/...` de um tópico). Workspaces anteriores à 0.3.0 têm as notas na raiz, com prefixo; o `mgr-setup` migra (move, tira o prefixo, pede ao `link-keeper` para reescrever os links, inclusive no `AGENTS.md` do workspace, e atualiza o parágrafo de estrutura do `AGENTS.md` e o `CLAUDE.md`; o mesmo acerto roda sozinho quando as notas já estão nas pastas mas o `AGENTS.md` ainda descreve o layout antigo), as outras skills param com `BLOCKED`.
 
@@ -94,7 +94,7 @@ Um tópico não tem dono único: `relatedTeam`, `relatedForum` e `relatedPerson`
 
 ### Frontmatter mínimo
 
-Templates completos em `plugin/skills/mgr-setup/templates/`. Campos obrigatórios:
+Templates completos em `src/skills/mgr-setup/templates/`. Campos obrigatórios:
 
 - **Person**: `name`, `type: person`, `role`, `description`, `tracked`; `isPartOf` só quando o time é conhecido.
 - **Forum**: `name`, `type: forum`, `facilitator`, `members`, `isPartOf`, `description`, `cadence`, `trackerBoardKey`, `trackerBoardUrl` (`TBD` quando não há board).
@@ -118,7 +118,7 @@ Skills que gravam nessas notas editam só a seção alvo, nunca reescrevem o arq
 
 ## Leitura de fontes externas
 
-Skills nunca leem tracker, messenger ou reuniões diretamente. A leitura é feita pelos sub-agentes `plugin/agents/source-*.md` (um por tipo de fonte), que recebem um brief e devolvem evidências no formato de `plugin/references/evidence.md`. Motivo: isolar o contexto (o report não vê mensagens brutas), padronizar a citação e permitir trocar a ferramenta de uma fonte sem tocar na skill.
+Skills nunca leem tracker, messenger ou reuniões diretamente. A leitura é feita pelos sub-agentes `src/agents/source-*.md` (um por tipo de fonte), que recebem um brief e devolvem evidências no formato de `src/references/evidence.md`. Motivo: isolar o contexto (o report não vê mensagens brutas), padronizar a citação e permitir trocar a ferramenta de uma fonte sem tocar na skill.
 
 Sub-agentes de plugin ignoram `mcpServers`, `permissionMode` e `hooks` (doc oficial de sub-agentes). No Cowork os servidores MCP têm nome UUID, então os sub-agentes não listam `tools`; herdam os da sessão e ficam somente-leitura via `disallowedTools`. Se o conector da fonte não existir na sessão, o sub-agente devolve evidência vazia com `coverage.failed` e a skill marca a fonte como não consultada — nunca bloqueia.
 
@@ -126,5 +126,5 @@ Farol de tópico é decidido só por evidência, com a regra de `evidence.md`. S
 
 ## Versionamento e empacotamento
 
-- Versão em `plugin/.claude-plugin/plugin.json`; bump semver a cada entrega.
-- `./maintainers/scripts/pack.sh` zipa o conteúdo de `plugin/` para `maintainers/`.
+- Versão em `src/.claude-plugin/plugin.json`; bump semver a cada entrega.
+- `./scripts/pack.sh` zipa o conteúdo de `src/` para `dist/`.

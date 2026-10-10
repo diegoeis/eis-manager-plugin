@@ -2,25 +2,25 @@
 #
 # pack.sh — Empacota o plugin para distribuicao
 #
-# O plugin final vive inteiro dentro da pasta plugin/ na raiz do repo — tudo
-# que da suporte ao desenvolvimento (maintainers/, .claude/, docs do repo) fica
+# O plugin final vive inteiro dentro da pasta src/ na raiz do repo — tudo
+# que da suporte ao desenvolvimento (docs/, scripts/, .claude/) fica
 # fora dela e nunca entra no pacote. Empacotar aqui significa zipar o
-# CONTEUDO de plugin/ (nao a pasta em si), excluindo so lixo incidental
+# CONTEUDO de src/ (nao a pasta em si), excluindo so lixo incidental
 # (.DS_Store, arquivos locais, pacotes anteriores).
 #
 # Cria um .zip (ou .tar.gz) pronto para instalacao. O pacote final eh gerado
-# em maintainers/.
+# em dist/.
 #
-# Uso (a partir da raiz do repo ou de maintainers/scripts/):
-#   ./maintainers/scripts/pack.sh           → gera maintainers/<name>-v<version>.zip (ou <name>.zip sem version)
-#   ./maintainers/scripts/pack.sh --tar     → gera maintainers/<name>-v<version>.tar.gz
+# Uso (a partir da raiz do repo ou de scripts/):
+#   ./scripts/pack.sh           → gera dist/<name>-v<version>.zip (ou <name>.zip sem version)
+#   ./scripts/pack.sh --tar     → gera dist/<name>-v<version>.tar.gz
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-MAINTAINERS_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-REPO_ROOT="$(cd "$MAINTAINERS_DIR/.." && pwd)"
-PLUGIN_DIR="$REPO_ROOT/plugin"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+PLUGIN_DIR="$REPO_ROOT/src"
+DIST_DIR="$REPO_ROOT/dist"
 PLUGIN_NAME=$(grep -o '"name": "[^"]*"' "$PLUGIN_DIR/.claude-plugin/plugin.json" | head -1 | cut -d'"' -f4)
 # version é opcional no plugin.json; sem ela, o pacote sai sem sufixo de versão
 VERSION=$(grep -o '"version": "[^"]*"' "$PLUGIN_DIR/.claude-plugin/plugin.json" | cut -d'"' -f4 || true)
@@ -31,7 +31,7 @@ else
 fi
 
 if [[ ! -d "$PLUGIN_DIR" ]]; then
-  echo "Erro: pasta plugin/ nao encontrada em $REPO_ROOT" >&2
+  echo "Erro: pasta src/ nao encontrada em $REPO_ROOT" >&2
   exit 1
 fi
 
@@ -45,7 +45,7 @@ EXCLUDE=(
   "*.tar.gz"
   "node_modules"
 )
-# Nota: sem exclude de "*.local.json" aqui de propósito — dentro de plugin/ só
+# Nota: sem exclude de "*.local.json" aqui de propósito — dentro de src/ só
 # existe conteúdo-fonte do plugin (ex: templates/settings.local.json), nunca
 # dado local de usuário de verdade. Excluir esse padrão já removeu um template
 # real por engano quando o script ainda zipava o repo inteiro.
@@ -74,18 +74,19 @@ for f in skills/*/SKILL.md agents/*.md; do
 done
 (( FAIL == 0 )) || { echo "Empacotamento abortado." >&2; exit 1; }
 
-# Remove pacotes anteriores em maintainers/
-rm -f "$MAINTAINERS_DIR"/*.zip "$MAINTAINERS_DIR"/*.tar.gz
+# Remove pacotes anteriores em dist/
+mkdir -p "$DIST_DIR"
+rm -f "$DIST_DIR"/*.zip "$DIST_DIR"/*.tar.gz
 
 if [[ "${1:-}" == "--tar" ]]; then
-  OUT="$MAINTAINERS_DIR/${PACK_NAME}.tar.gz"
+  OUT="$DIST_DIR/${PACK_NAME}.tar.gz"
   EXCLUDE_ARGS=()
   for pattern in "${EXCLUDE[@]}"; do
     EXCLUDE_ARGS+=(--exclude="$pattern")
   done
   tar czf "$OUT" "${EXCLUDE_ARGS[@]}" -C "$PLUGIN_DIR" .
 else
-  OUT="$MAINTAINERS_DIR/${PACK_NAME}.zip"
+  OUT="$DIST_DIR/${PACK_NAME}.zip"
   EXCLUDE_ARGS=()
   for pattern in "${EXCLUDE[@]}"; do
     EXCLUDE_ARGS+=(-x "$pattern")
