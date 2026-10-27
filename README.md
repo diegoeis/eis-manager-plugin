@@ -4,7 +4,7 @@ Plugin para Claude (Claude Code e Cowork) que ajuda Heads, Leads, PMs e Tech Lea
 
 Ele junta o que está espalhado entre project tracker, messenger, reuniões e as suas próprias notas, e gera status reports em que toda afirmação tem fonte. O que não tem fonte fica marcado como não verificado ou fica de fora.
 
-> Versão atual: `0.3.0` (ver [`src/.claude-plugin/plugin.json`](src/.claude-plugin/plugin.json)).
+> Versão atual: `0.3.5` (ver [`src/.claude-plugin/plugin.json`](src/.claude-plugin/plugin.json)).
 
 ## O problema
 
