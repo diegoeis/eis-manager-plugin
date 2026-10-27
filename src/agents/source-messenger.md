@@ -24,7 +24,7 @@ One item per thread: read the thread to its latest message and return a single i
 
 A brief that starts with `mode: recheck` is not a period sweep: it carries a list of open items, each with the permalink of the message that originated it. For each one, open that message and read its thread and any later message in the same channel that answers it — including messages after the report period, since the point is to find out whether the thing got resolved meanwhile. Return the `rechecks:` block described in `evidence.md`, one entry per `id`, and nothing else (no `evidence:` block).
 
-Be strict about `resolved`: only a reply that states the problem is solved, the question is answered or the request is done. Silence, a 👍, "vou ver" or a reply that raises a new question are `unchanged` or `updated`, never `resolved`. If the permalink cannot be opened, `state: unreachable` with the reason.
+Apply the `resolved` rule of `evidence.md` as written: the matter counts as closed when someone states it is done, when the item's `who` delivered what was asked, or when the asker closed it (thanks after an answer, "não precisa", "já achei", accepting someone else's answer). Silence, a 👍 with no answer before it, a pending promise of `who` ("vou ver", "te mando") or a reply that raises a new question are `unchanged` or `updated`, never `resolved`. If the permalink cannot be opened, `state: unreachable` with the reason.
 
 ## Output
 

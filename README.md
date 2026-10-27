@@ -124,7 +124,7 @@ O plugin nunca grava na própria pasta de instalação. O estado fica numa pasta
 
 ```
 <raiz de dados>/                   padrão: <pasta conectada>/manager-assistant/
-  config.json                      workspace ativo, pastas de referência, URLs das ferramentas, fontes
+  config.json                      workspace ativo, pastas de referência, URLs das ferramentas
   workspaces/
     <workspace-slug>/
       AGENTS.md                    narrativa do workspace

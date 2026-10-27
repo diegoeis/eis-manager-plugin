@@ -25,7 +25,7 @@ Este arquivo é o contexto narrativo do workspace. Qualquer agente que trabalhe 
 | Project tracker | {{jira}} | {{https://...}} | {{convenções de status: qual coluna significa DONE}} |
 | Messenger | {{slack}} | {{https://...}} | {{convenções de canais}} |
 
-Outras fontes (vault, pastas de documentos, reuniões) ficam em `config.json` → `sources`, registradas conforme aparecem na conversa.
+Pastas locais gerais (vault, pastas de documentos e de transcrições) ficam em `config.json` → `referenceFolders`. Canais, reuniões e arquivos de um sujeito ou tópico ficam na nota dele.
 
 ## Acompanhamentos
 

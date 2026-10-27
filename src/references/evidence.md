@@ -23,7 +23,7 @@ meetingTools: {{every place listed under a meeting in the subject or its topics,
 localFolders: {{paths where notes or transcripts may exist}}   # meetings and local notes
 ```
 
-`localFolders` is built in this order, first entries being the most specific: the subject's `## Arquivos e assets`, then each topic's `## Arquivos e assets` (also repeated on the topic's `files:`), then `config.json → sources` and `referenceFolders`. Subject-level entries carry `topic: subject` unless the note names a topic.
+`localFolders` is built in this order, first entries being the most specific: the subject's `## Arquivos e assets`, then each topic's `## Arquivos e assets` (also repeated on the topic's `files:`), then `config.json → referenceFolders`. Subject-level entries carry `topic: subject` unless the note names a topic.
 
 Every note (subject or topic) exposes sources through the same two sections: `## Fontes relacionadas` (single table Nome | URL/Link | Tipo) and `## Arquivos e assets`. Rows whose `Tipo` names a messenger tool feed `channels`; rows whose `Tipo` names a meeting tool feed `meetings` (grouped by `Nome` when several rows share a title); `## Arquivos e assets` bullets feed `files`.
 
@@ -48,7 +48,7 @@ evidence:
   fact: {{one sentence, factual, no interpretation}}
   who: {{person named by the source, else omit}}
   source: {{URL, issue key, permalink, meeting title + date, file path}}
-  tracker: {{tracker items only - status, assignee or "sem responsável", priority, due YYYY-MM-DD, flagged yes/no, and the key of the parent or linked issue it blocks when that issue is open, priority High or above and due within 3 days}}
+  tracker: {{tracker items only - status, assignee or "sem responsável", priority, due YYYY-MM-DD, flagged yes/no with blocked since YYYY-MM-DD, and the key of the parent or linked issue it blocks when that issue is open, priority High or above and due within 3 days}}
 
 ```
 
@@ -71,7 +71,7 @@ Rules that keep the report honest:
 
 ## Recheck brief (open items from previous reports)
 
-Besides the period brief, the skill may send a sub-agent a **recheck brief**: a list of items that were left open (`- [ ]`) in the previous report and whose source is a link that agent's tool owns (a Slack/Teams permalink for `source-messenger`, an issue for `source-tracker`, a meeting page for `source-meetings`). The question is not "what happened in the period" but "did this specific item get resolved at its own source".
+Besides the period brief, the skill may send a sub-agent a **recheck brief**: a list of open items (`- [ ]`) — left open in the previous report or just found in this period — whose source is a link that agent's tool owns (a Slack/Teams permalink for `source-messenger`, an issue for `source-tracker`, a meeting page for `source-meetings`). The question is not "what happened in the period" but "did this specific item get resolved at its own source".
 
 ```
 mode: recheck
@@ -81,6 +81,7 @@ since: {{YYYY-MM-DD}}        # date the item was first recorded
 items:
 - id: R1
   what: {{the open item, one sentence, as written in the report}}
+  who: {{the item's accountable, as written in the report}}
   source: {{permalink / issue URL / meeting URL of the item}}
 ```
 
@@ -96,7 +97,12 @@ rechecks:
   source: {{permalink of the reply/comment that shows it - required for resolved and updated}}
 ```
 
-- `resolved` only when the follow-up **states** the problem was solved, the question answered or the request done ("resolvido", "subiu", "feito", "pode fechar", an answer that closes the question). A thread that simply went quiet, or an emoji/ack, is `unchanged`.
+- `resolved` when a follow-up after the source message shows the matter closed, even softly:
+  - it states the problem was solved, the question answered or the request done ("resolvido", "subiu", "feito", "pode fechar");
+  - the item's `who` delivered what was asked (sent the analysis, answered the question, shared the plan);
+  - the asker closed it: thanked an answer, said it is no longer needed ("não precisa", "já achei", "deixa pra lá"), or accepted an answer someone else gave;
+  - the ask was conditional ("se achar, me manda") and nobody came back to it after an answer.
+- Not `resolved`: a thread that simply went quiet, an emoji or ack with no answer before it, or a last word of `who` that is a promise not yet kept ("vou ver", "te mando", "vou resolver") — those are `unchanged` or `updated`.
 - `updated`: there is news on the item but it is not closed (a partial answer, a new deadline, a hand-off).
 - `unreachable`: the link could not be opened (no connector, deleted, no access) — say why in `fact`.
 - Same rules as normal evidence: no quotes, no customer data, every `resolved`/`updated` carries an openable `source` URL. No URL → `unchanged`.
@@ -120,7 +126,7 @@ A topic can be shared by several subjects, so evidence mapped to a topic may be 
 Per topic, from evidence mapped to it. First match wins:
 
 1. No evidence for the topic: the farol is not decided. Repeat the previous value (including `TBD`), reason "sem evidência no período", list the topic in `## Não verificado`, touch the topic note only to append the report link.
-2. `problem`: an open blocker at `periodEnd`, or `dueDate` already past with nothing closing the topic.
+2. `problem`: an open blocker at `periodEnd` (a blocked tracker item counts only when blocked for more than 2 days at `periodEnd`), or `dueDate` already past with nothing closing the topic.
 3. `in_risk`: a risk or pending item nothing in the period answers, or a `dueDate` within about a month with no delivery or progress.
 4. `on_track`: delivery or progress and none of the above.
 5. Evidence that fits none of these (only decisions or context): keep the previous farol; if it was `TBD`, set `on_track` and say why.

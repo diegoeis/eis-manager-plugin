@@ -35,7 +35,7 @@ A raiz de dados é uma pasta que o usuário nomeia no setup. Ela guarda `config.
 
 Para reencontrar a raiz, toda skill segue `src/references/data-root.md`: (1) path dado pelo usuário no pedido, como flag `--data-root` ou em prosa, que vence quando presente e é o caminho para agendamentos e outros agentes sem pasta conectada; (2) `config.json` na pasta conectada, em `manager-assistant/` dentro dela ou um nível abaixo; (3) pergunta o path, só em `--interactive` ou no `mgr-setup`; em modo silencioso sem (1) nem (2), `BLOCKED`. Nada além disso: sem ponteiro, sem procurar em `~/.claude/` ou `${CLAUDE_PLUGIN_DATA}`, sem subir diretórios. Cada tentativa fora da pasta conectada é uma leitura que falha no Cowork e confunde o fluxo.
 
-Pastas de referência (as que o usuário aponta para inferência) são só lidas, nunca recebem estado. Skills que não são `mgr-setup` param com `STATUS: BLOCKED` quando não há `config.json`.
+Pastas de referência (as que o usuário aponta para inferência) são só lidas, nunca recebem estado. Exceção única: quando o `mgr-status-report` fecha uma tarefa que veio de uma nota do vault, ele marca `- [x] ✅` no checkbox correspondente dessa nota e não muda mais nada nela. Skills que não são `mgr-setup` param com `STATUS: BLOCKED` quando não há `config.json`.
 
 Todo estado é texto simples: JSON só para `config.json`; tudo o mais é Markdown com frontmatter YAML, para que LLMs, agentes e scripts extraiam o YAML sem precisar interpretar o corpo.
 
@@ -44,7 +44,7 @@ Todo estado é texto simples: JSON só para `config.json`; tudo o mais é Markdo
 - Idioma nunca é perguntado: a skill responde no idioma em que o usuário escreve.
 - Ferramentas nunca são perguntadas por nome: pede-se a URL (board do tracker, messenger) e infere-se a ferramenta pelo domínio.
 - Setup cadastra identidade e relações (workspace, times, pessoas, tópicos com os times/fóruns/pessoas relacionados e descrição). Status, prazo, estado atual e fontes de um tópico não são perguntados no setup; entram pelas skills de report ou por edição manual.
-- Fontes adicionais (vault do Obsidian, pasta do Drive, reuniões) não são perguntadas no setup. Quando o usuário citar um path ou URL numa conversa, qualquer skill grava em `config.json` → `sources`. Se uma skill precisar de uma fonte não registrada, pergunta uma vez e grava.
+- Fontes adicionais (vault do Obsidian, pasta do Drive, reuniões) não são perguntadas no setup. Quando o usuário citar uma pasta ou arquivo local numa conversa, a skill grava o path em `config.json` → `referenceFolders`, a lista única de pastas gerais do workspace; canais, reuniões e arquivos de um sujeito ou tópico vão para a nota dele. Se uma skill precisar de uma fonte não registrada, pergunta uma vez e grava.
 - Toda pergunta, formulário ou seletor de pasta vem precedido de uma ou duas frases dizendo por que está sendo pedido e o que será feito com a resposta. Seletor ou formulário sem contexto é defeito. No Cowork, texto escrito entre chamadas de ferramenta não aparece (vira resumo); contexto antes de um seletor tem que ir pela ferramenta de mensagem ao usuário (`send_user_message`).
 - No Cowork, pasta se obtém pelo seletor nativo (pedido de conexão de pasta), não por path digitado; path digitado é o fallback para hosts sem seletor.
 - Primeira rodada do setup tem dois campos: onde procurar (pastas de referência; omitido se já há pasta conectada) e onde gravar (raiz de dados, com default na pasta conectada). Rodadas seguintes agrupam no máximo cinco campos relacionados.
@@ -55,7 +55,7 @@ As relações entre workspace, times, tópicos e pessoas vivem no frontmatter, v
 
 ```
 <raiz>/                              # pasta nomeada pelo usuário; default <conectada>/manager-assistant/
-  config.json                        # workspace ativo, pastas de referência, ferramentas (URLs), fontes registradas
+  config.json                        # workspace ativo, pastas de referência, ferramentas (URLs)
   workspaces/
     <workspace-slug>/                # kebab-case
       AGENTS.md                      # narrativa do workspace (empresa, contexto, o que importa)
@@ -108,7 +108,7 @@ Templates completos em `src/skills/mgr-setup/templates/`. Campos obrigatórios:
 
 Seções H2 fixas, na ordem, para extração por heading:
 
-- **Team**: Sobre; Pessoas e papéis (tabela: nome, role, descrição); Topics (tabela: nome, link, descrição dos tópicos cujo `relatedTeam` inclui esse time); Fontes (Canais; Reuniões e transcrições como lista: uma reunião por item e, aninhados, os lugares onde ela pode estar — Granola, Tactiq, Drive, pasta local, Obsidian — com path ou link; Arquivos — mesmas subseções do Topic; o status-report consulta em todo report do time e grava ali o que aprender sobre o time).
+- **Team**: Sobre; Pessoas e papéis (tabela: nome, role, descrição); Topics (tabela: nome, link, descrição dos tópicos cujo `relatedTeam` inclui esse time); Fontes (Canais; Reuniões e transcrições como lista: uma reunião por item e, aninhados, os lugares onde ela pode estar — Granola, Tactiq, Drive, pasta local, Obsidian — com path ou link; Arquivos — mesmas subseções do Topic; o status-report consulta em todo report do time e nunca escreve ali).
 - **Forum**: Sobre; Participantes (tabela: nome, papel no fórum, descrição); Topics; Fontes (como Team).
 - **Person** com `tracked: true`: Sobre; Topics; Fontes (como Team).
 - **Topic**: Contexto; Status atual (farol, descrição de até 100 palavras, link do último report); Fontes (canais com nome e URL, reuniões/transcrições, arquivos); Reports (links dos reports gerados).

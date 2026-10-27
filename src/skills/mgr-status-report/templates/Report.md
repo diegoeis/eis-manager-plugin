@@ -36,7 +36,7 @@ Período: {{YYYY-MM-DD}} a {{YYYY-MM-DD}}.
     - {{itens entregues ou movidos nesse dia, cada um com a fonte linkada inline; nomes de pessoas linkados como [Nome](../../people/Nome.md). Quando o fato é de pessoa de outro time que compartilha este tópico, acrescente o sufixo "(via {{Outro Time}})" no fim da linha}}
 - **Riscos e bloqueios:**
   - **{{YYYY-MM-DD}}**
-    - {{o que ameaça o tópico, registrado nesse dia, com a fonte linkada inline. Inclui itens do tracker bloqueados ou vencidos que não viraram ação. Nunca "segue sem mudança"; alertas automáticos somados numa linha só}}
+    - {{o que ameaça o tópico, registrado nesse dia, com a fonte linkada inline. Inclui itens do tracker vencidos que não viraram ação. Itens do tracker bloqueados há mais de 2 dias viram uma linha só por tópico, no grupo do `periodEnd`: "{{N}} tasks bloqueadas há mais de 2 dias: [KEY](url) (desde DD/MM), ..."; bloqueados há 2 dias ou menos ficam de fora. Nunca "segue sem mudança"; alertas automáticos somados numa linha só}}
   - {{sem nada no período: um único item "Nenhum identificado nas fontes consultadas", sem data}}
 - **Próximos passos:**
   - **{{YYYY-MM-DD}}**
@@ -44,13 +44,12 @@ Período: {{YYYY-MM-DD}} a {{YYYY-MM-DD}}.
 
 #### Ações e Pendências
 
-{Poucos itens, cada um algo que uma pessoa tem de entregar. Só entra o que passa no teste do Step 4 da skill: dono citado pela fonte (nunca "(padrão)"), entregável concreto, pessoa do próprio sujeito, e nada de manutenção do tracker, comunicar/responder/alinhar, mensagem solta de thread, decisão ou alerta. Item do tracker só entra se estiver em execução (nunca Ready to Dev, backlog ou espera), com responsável, e se ele (ou o pai/item que ele bloqueia) for High ou acima e vencer nos próximos 3 dias. Itens bloqueados viram uma linha só por tópico: "Hoje existem N tasks bloqueadas", com os links. O resto vai para Riscos e bloqueios, Decisões ou Próximos passos.}
+{Poucos itens, cada um algo que uma pessoa tem de entregar. Só entra o que passa no teste do Step 4 da skill: dono citado pela fonte (nunca "(padrão)"), entregável concreto, pessoa do próprio sujeito, e nada de manutenção do tracker, comunicar/responder/alinhar, mensagem solta de thread, decisão ou alerta. Item do tracker só entra se estiver em execução (nunca Ready to Dev, backlog ou espera), com responsável, e se ele (ou o pai/item que ele bloqueia) for High ou acima e vencer nos próximos 3 dias. Itens bloqueados nunca entram aqui: vão para Riscos e bloqueios. O resto vai para Riscos e bloqueios, Decisões ou Próximos passos.}
 
 {Inclui: (a) itens abertos herdados do report anterior que ainda passam no teste, com a data ➕ original e o link de origem; (b) itens novos do período. Mesma fonte ou mesmo entregável é o mesmo item: a novidade vira sub-bullet datado, nunca item novo e nunca texto dentro da linha. Nunca inclua itens [x] ou [-] de reports anteriores.}
 
 {Itens herdados cuja fonte é um link são reverificados na própria fonte: resolvido vira [x] com ✅ e sub-bullet datado; novidade sem fechamento continua [ ] com sub-bullet datado; fonte inacessível continua [ ] com sub-bullet de não verificado. Linhas começam na coluna 0, sem espaços antes do "-".}
 
-- [ ] [{{Tech Lead}}](../../people/{{Tech Lead}}.md) - Hoje existem {{N}} tasks bloqueadas: [{{ABC-123}}]({{url}}), [{{ABC-456}}]({{url}}) ➕ {{YYYY-MM-DD}}
 - [ ] [{{Nome do Responsável}}](../../people/{{Nome do Responsável}}.md) - {{Descrição do entregável}} ([fonte]({{url}})) ➕ {{YYYY-MM-DD}}
 - [ ] [{{Nome do Responsável}}](../../people/{{Nome do Responsável}}.md) - {{Descrição do item herdado, sem mudar o texto}} ([fonte]({{url}})) - [origem](../{{YYYY-MM}}/Report - {{Subject Name}} - {{YYYY-MM-DD}}.md) ➕ {{YYYY-MM-DD}}
   - {{YYYY-MM-DD}}: {{o que a fonte diz de novo, sem fechar o item}} ([fonte]({{url}}))

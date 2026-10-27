@@ -44,17 +44,16 @@ Path: `DATA_ROOT/config.json`. The only JSON file in the state; everything else 
       "tools": {
         "tracker": { "tool": "jira", "url": "https://acme.atlassian.net" },
         "messenger": { "tool": "slack", "url": "https://acme.slack.com" }
-      },
-      "sources": {}
+      }
     }
   }
 }
 ```
 
 - `activeWorkspace` is the slug used when the user does not name one. Switching workspaces is out of scope for now.
-- `referenceFolders` are the folders the user pointed to for inference (connected folder, vault, project folders). Setup scans them for names; other skills use them as the default places to look for local notes. Empty list when none.
+- `referenceFolders` is the one list of local folders and files of the workspace: the ones the user pointed to in setup (connected folder, vault, project folders) and any folder or file the user names later (in `--source` or in a request), such as an Obsidian vault or a transcripts folder. Absolute paths, no duplicates. Setup scans them for names; `mgr-status-report` uses them as the general places to look for local notes and transcripts, after the `## Arquivos e assets` of the subject and its topics. Channels, meetings, boards and files of one subject or topic never go here: they live in the `## Fontes relacionadas` and `## Arquivos e assets` of that note, which is what ties the evidence to it. No skill adds entries on its own. Empty list when none.
 - `tools` holds only what setup asked for: the tracker and the messenger. The `tool` value is inferred from the URL domain (see below).
-- `sources` holds only folders and files the user named (in setup, in `--source`, or in a request), under a short key, for example `"obsidianVault": "/Users/.../Vault"` or `"transcripts": "/Users/.../Meetings"`. Skills read them as default places for local notes and transcripts. Channels, meetings, boards and topic files never go here: they live in the `## Fontes relacionadas` and `## Arquivos e assets` of the subject or topic note, which is what feeds the report. No skill adds entries on its own.
+- Older configs may still carry a `sources` object (`"obsidianVault": "/path"`). Every skill that reads `referenceFolders` also reads the paths in `sources` as part of it; `mgr-setup` moves them into `referenceFolders` and deletes `sources` the next time it writes `config.json`.
 - No language field. Every skill answers in the language the user is writing in.
 - Never store credentials, tokens or personal data beyond names and roles.
 

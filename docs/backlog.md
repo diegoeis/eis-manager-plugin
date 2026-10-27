@@ -7,7 +7,7 @@ Itens deliberadamente fora das fatias atuais. Cada item tem até 300 caracteres.
 - [ ] **Multi-workspace ativo**: `config.json` já guarda `activeWorkspace`; falta skill para trocar de workspace e resolução de contexto quando o usuário cita um workspace que não é o ativo.
 - [ ] **Perfil do usuário no config**: nome e papel do gestor, para assinar reports e ajustar o tom. Removido do setup para reduzir perguntas; entra quando um report precisar.
 - [ ] **Idioma de saída fixo**: opção de forçar um idioma nos reports diferente do da conversa (ex.: reports em inglês para C-level global). Hoje o idioma segue a interação.
-- [ ] **Outras ferramentas no setup**: reuniões/transcrições, documentos e email como fontes declaradas. Hoje só tracker e messenger; o resto entra em `sources` conforme o usuário cita.
+- [ ] **Outras ferramentas no setup**: reuniões/transcrições, documentos e email como fontes declaradas. Hoje só tracker e messenger; pastas locais entram em `referenceFolders` conforme o usuário cita.
 - [ ] **`mgr-setup --from arquivo.md`**: ler respostas do setup de um arquivo para refazer sem entrevista e permitir setup por agentes sem chat interativo.
 - [ ] **Ponteiro global para a raiz de dados**: reabrir quando o Cowork expuser um diretório persistente do plugin. Hoje o estado só é encontrado pela pasta conectada ou perguntando. Testado em 2026-09-08: nem ferramentas de arquivo nem script Python via Bash alcançam `~/.claude` no Cowork (o Bash roda em sandbox com outro home). Script do teste em `scripts/test_init_data_root.py`.
 - [ ] **Fontes por tópico no setup**: removido para encurtar o setup; canais, reuniões e arquivos de um tópico entram pelas skills de report ou por edição manual.
