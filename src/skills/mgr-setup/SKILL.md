@@ -10,7 +10,7 @@ Creates the state every other `mgr-*` skill depends on: a data folder chosen by 
 
 ## Step 0 — Find existing state (before reading anything else)
 
-Do this first, with no other reads. Look for `config.json` containing `"plugin": "eis-manager-assistant"`, stopping at the first hit: a path in the request; then, if a folder is connected to the session, in it, in `manager-assistant/` inside it, or one level down (On hosts without folder connection, the session's working directory counts as the connected folder); then a path the host keeps for this user across sessions (an entry in the host's persistent memory, a line in the user's instructions file, or the `EIS_MANAGER_ASSISTANT_DATA_ROOT` environment variable). That is the whole search: no pointer file, nothing under `~/.claude/` or `${CLAUDE_PLUGIN_DATA}`. If you can't find the "eis-manager-assistant", make up parent directories pwd.
+Do this first, with no other reads. Look for `config.json` containing `"plugin": "eis-manager-assistant"`, stopping at the first hit: a path in the request; then, if a folder is connected to the session, in it, in `manager-assistant/` inside it, or one level down (on hosts without folder connection, the session's working directory counts as the connected folder); if nothing is there, the folders above it, one at a time up to the user's home folder (only `config.json` and `manager-assistant/config.json` in each, never a wider search; stop at the first folder the host cannot read); then a path the host keeps for this user across sessions (an entry in the host's persistent memory, a line in the user's instructions file, or the `EIS_MANAGER_ASSISTANT_DATA_ROOT` environment variable). That is the whole search: no pointer file, nothing under `~/.claude/` or `${CLAUDE_PLUGIN_DATA}`.
 
 Found `config.json`: `DATA_ROOT` is its folder; say so in one line and skip Round 1. Not found, or no folder connected: go to Round 1.
 
@@ -216,7 +216,7 @@ STATUS: OK | WARN
 - Ask which tools the company uses; ask for URLs and infer.
 - Read tracker, messenger, meeting or email tools during setup.
 - Write inside the plugin's own folder, inside a reference folder (other than the `DATA_ROOT` the user chose), or anywhere other than `DATA_ROOT`.
-- Look for state in `~/.claude/`, `${CLAUDE_PLUGIN_DATA}`, a pointer file, or parent directories of the connected folder.
+- Look for state in `~/.claude/`, `${CLAUDE_PLUGIN_DATA}`, a pointer file, or above the user's home folder; search the folders above the connected one wider than `data-root.md` allows.
 - Pick a data location the user did not name, or fall back to another path when the chosen one fails.
 - Open a folder picker or show a form without first explaining what it is for.
 - Create folders inside a workspace other than `teams/`, `forums/`, `people/`, `topics/` and `reports/{{YYYY-MM}}/`, or put a typed note outside its folder.

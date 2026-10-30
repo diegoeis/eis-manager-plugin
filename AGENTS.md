@@ -6,3 +6,5 @@
 - Nunca comece fazendo a solução mais complexa e completa. Sempre opitamos por começar simples, e só depois evoluir para a solução mais completa.
 - A pasta `docs` guarda PRD, backlog e outros docs de gestão desse projeto; `scripts` guarda o `pack.sh` e scripts de teste.
 - A pasta `src` são todos os arquivos do plugin. É o que será empacotado no final, em `dist/`.
+- O plugin roda no Claude Code, no Cowork e no Hermes. `src/.claude-plugin/plugin.json` é o manifesto do Claude (versão em `metadata.release`); `src/plugin.json` é o manifesto Agent Plugins v1 do Hermes (versão em `version`). A cada release, suba a versão nos dois; o `pack.sh` recusa se divergirem.
+- Dentro das skills, arquivos do plugin são referenciados por caminho relativo à pasta da skill (`../../references/x.md`, `templates/x.md`), nunca por `${CLAUDE_PLUGIN_ROOT}` (só o Claude Code expande; o `pack.sh` recusa). Não cite nomes de ferramentas de um host específico.

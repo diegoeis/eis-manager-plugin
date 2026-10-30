@@ -64,11 +64,11 @@ Os três `source-*` devolvem evidências num formato fixo ([`src/references/evid
 ### Desenvolvimento local (Claude Code)
 
 ```bash
-git clone git@github.com:diegoeis/eis-manager-plugin.git
+git clone git@github.com:diegoeis/eis-manager-assistant.git
 ```
 
 ```bash
-claude --plugin-dir ./eis-manager-plugin/src
+claude --plugin-dir ./eis-manager-assistant/src
 ```
 
 Pelo marketplace: `/plugin marketplace add diegoeis/eis-plugins` e `/plugin install eis-manager-assistant@eis-plugins`.
@@ -76,7 +76,7 @@ Pelo marketplace: `/plugin marketplace add diegoeis/eis-plugins` e `/plugin inst
 ### Hermes
 
 ```bash
-hermes plugins install diegoeis/eis-manager-plugin/src --enable
+hermes plugins install diegoeis/eis-manager-assistant/src --enable
 ```
 
 O Hermes lê `src/plugin.json` (Agent Plugins v1) e carrega as skills. Ele não registra os sub-agentes de `src/agents/`: as skills rodam cada um como sub-agente comum, com o arquivo como instruções. Como o Hermes não tem pasta conectada, o `/mgr-setup` oferece salvar o caminho da raiz de dados na memória do Hermes, e as outras skills o encontram lá (ou em `--data-root`, ou na variável `EIS_MANAGER_ASSISTANT_DATA_ROOT`).
