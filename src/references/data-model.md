@@ -54,7 +54,7 @@ Markdown links to a person (`[Nome](...)`, used in reports and in topic `## Stat
 
 ## Frontmatter
 
-Templates with the full body live inside the skill that creates the note: `${CLAUDE_PLUGIN_ROOT}/skills/mgr-setup/templates/` (`AGENTS.md`, `CLAUDE.md`, `Team.md`, `Forum.md`, `Person.md`, `Topic.md`) and `${CLAUDE_PLUGIN_ROOT}/skills/mgr-status-report/templates/Report.md`. Always create notes from them. `description` is at most 350 characters. Dates are `YYYY-MM-DD`. A field whose value is not yet known and is required holds the literal `TBD`.
+Templates with the full body live inside the skill that creates the note: `skills/mgr-setup/templates/` of the plugin (`AGENTS.md`, `CLAUDE.md`, `Team.md`, `Forum.md`, `Person.md`), `skills/mgr-topic/templates/Topic.md` and `skills/mgr-status-report/templates/Report.md`. Always create notes from them. `description` is at most 350 characters. Dates are `YYYY-MM-DD`. A field whose value is not yet known and is required holds the literal `TBD`.
 
 **Person** (`people/{{Name}}.md`)
 

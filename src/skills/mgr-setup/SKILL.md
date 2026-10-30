@@ -10,7 +10,7 @@ Creates the state every other `mgr-*` skill depends on: a data folder chosen by 
 
 ## Step 0 — Find existing state (before reading anything else)
 
-Do this first, with no other reads. If a folder is connected to the session, look for `config.json` containing `"plugin": "eis-manager-assistant"` in it, in `manager-assistant/` inside it, or one level down. That is the whole search: no pointer file, nothing under `~/.claude/` or `${CLAUDE_PLUGIN_DATA}`. If you can't find the "eis-manager-assistant", make up parent directories pwd.
+Do this first, with no other reads. Look for `config.json` containing `"plugin": "eis-manager-assistant"`, stopping at the first hit: a path in the request; then, if a folder is connected to the session, in it, in `manager-assistant/` inside it, or one level down (On hosts without folder connection, the session's working directory counts as the connected folder); then a path the host keeps for this user across sessions (an entry in the host's persistent memory, a line in the user's instructions file, or the `EIS_MANAGER_ASSISTANT_DATA_ROOT` environment variable). That is the whole search: no pointer file, nothing under `~/.claude/` or `${CLAUDE_PLUGIN_DATA}`. If you can't find the "eis-manager-assistant", make up parent directories pwd.
 
 Found `config.json`: `DATA_ROOT` is its folder; say so in one line and skip Round 1. Not found, or no folder connected: go to Round 1.
 
@@ -31,12 +31,13 @@ List what changed in the summary.
 
 ## References
 
-Read only when the step needs them, not upfront:
+Read only when the step needs them, not upfront. Paths are relative to this skill's folder.
 
-- `${CLAUDE_PLUGIN_ROOT}/references/data-root.md` — before writing `config.json` (schema, tool inference from URLs).
-- `${CLAUDE_PLUGIN_ROOT}/references/data-model.md` — before creating the first note (frontmatter, body sections, wikilinks).
+- `../../references/data-root.md` — before writing `config.json` (schema, tool inference from URLs).
+- `../../references/data-model.md` — before creating the first note (frontmatter, body sections, wikilinks).
+- Sub-agents: each `eis-manager-assistant:{{name}}` agent is the file `../../agents/{{name}}.md`. On a host that does not register plugin agents, run a sub-agent whose instructions are that file's body (below its frontmatter), with the brief as its task, and keep the tool limits its frontmatter declares (read-only agents stay read-only).
 
-Templates: `${CLAUDE_PLUGIN_ROOT}/skills/mgr-setup/templates/` (this skill's own folder: `AGENTS.md`, `CLAUDE.md`, `Team.md`, `Forum.md`, `Person.md`). Topics are owned by the `mgr-topic` skill; this skill never writes `topics/*.md` directly — it delegates to `/mgr-topic --add`. Read each template right before creating that kind of note. **The template is the schema**: every note is created from its template, every `{{placeholder}}` is replaced with a real value from the current conversation, example rows that were not filled are removed, and no placeholder ever survives. Never add fields that are not in the template. Never omit fields that are in the template unless the template explicitly marks them optional (a comment starting with `# Optional`). If the user did not provide a value for a required field, use `TBD` and list it in the summary — never invent a value.
+Templates: `templates/` (in this skill's own folder: `AGENTS.md`, `CLAUDE.md`, `Team.md`, `Forum.md`, `Person.md`). Topics are owned by the `mgr-topic` skill; this skill never writes `topics/*.md` directly — it delegates to `/mgr-topic --add`. Read each template right before creating that kind of note. **The template is the schema**: every note is created from its template, every `{{placeholder}}` is replaced with a real value from the current conversation, example rows that were not filled are removed, and no placeholder ever survives. Never add fields that are not in the template. Never omit fields that are in the template unless the template explicitly marks them optional (a comment starting with `# Optional`). If the user did not provide a value for a required field, use `TBD` and list it in the summary — never invent a value.
 
 ## Principles
 
@@ -138,7 +139,7 @@ Create `teams/{{Name}}.md` from the template:
 
 Create one `people/{{Name}}.md` per person in the table, from the template, if the file does not exist. `isPartOf` links to `[[{{Team Name}}]]`. If the person already exists with a different team, do not overwrite; report it in the summary.
 
-Append a row (`team`) to `## Acompanhamentos` in the workspace `AGENTS.md`.
+In the workspace `AGENTS.md`, the `## Acompanhamentos` table gets one new row (`team`).
 
 ## Mode: forum
 
@@ -151,7 +152,7 @@ A forum is a recurring meeting where decisions or alignments happen (a product c
 
 Create `forums/{{Name}}.md` from the template: `facilitator` and `members` as `[[{{Person Name}}]]`; `topics: []` in the frontmatter (empty; filled in topic mode); `## Participantes` with every person and their role in the forum; `## Topics` header only (rows added in topic mode, in sync with `topics`); `## Fontes relacionadas` (table header only) and `## Arquivos e assets` (empty), filled with anything the user volunteered (the forum's own meeting is the natural first row in `## Fontes relacionadas` with `Tipo` = the meeting tool). Create `people/{{Name}}.md` for participants that do not exist yet (`tracked: false`; omit `isPartOf` when their team is unknown; do not add `topics` to untracked people).
 
-Append a row (`forum`) to `## Acompanhamentos` in the workspace `AGENTS.md`. Then offer topics (default yes).
+In the workspace `AGENTS.md`, the `## Acompanhamentos` table gets one new row (`forum`). Then offer topics (default yes).
 
 ## Mode: person
 
@@ -162,7 +163,7 @@ Following a person means the user wants status reports about the topics that per
 
 Set `tracked: true`, initialize `topics: []` in the frontmatter, and add `## Sobre`, `## Topics` (header only; rows in sync with `topics`), `## Fontes relacionadas` (table header only) and `## Arquivos e assets` (empty; anything volunteered goes here as bullets) to the person's note without touching the rest of the existing frontmatter or other content. Say in one line that direct messages are never read and that the user's own 1:1 notes enter through `## Arquivos e assets`.
 
-Append a row (`person`) to `## Acompanhamentos` in the workspace `AGENTS.md`. Then offer topics (default yes).
+In the workspace `AGENTS.md`, the `## Acompanhamentos` table gets one new row (`person`). Then offer topics (default yes).
 
 ## Mode: topic
 
@@ -206,7 +207,7 @@ Always finish with:
 STATUS: OK | WARN
 ```
 
-`WARN` when any field was left as `TBD` or any note was skipped because it already existed. If `DATA_ROOT` is outside the connected folder, add one line saying later sessions will ask for its path. Then list: data root, reference folders, workspace path, files created, files skipped, lines appended (source mode), fields left as `TBD`, and the next step: run `/mgr-status-report {{subject}}` for the first report, or edit any note by hand (the plugin reads frontmatter and section headings, not folder structure).
+`WARN` when any field was left as `TBD` or any note was skipped because it already existed. If `DATA_ROOT` is outside the connected folder (or no folder is connected) and the host keeps memory or an instructions file across sessions, offer to save the line `eis-manager-assistant data root: {{DATA_ROOT}}` there, so later sessions find it without asking; otherwise add one line saying later sessions will need its path. Then list: data root, reference folders, workspace path, files created, files skipped, lines appended (source mode), fields left as `TBD`, and the next step: run `/mgr-status-report {{subject}}` for the first report, or edit any note by hand (the plugin reads frontmatter and section headings, not folder structure).
 
 ## Never
 
@@ -214,7 +215,7 @@ STATUS: OK | WARN
 - Ask for topic status, due date, current state or sources during team, forum, person and topic setup; sources are registered only through `--source` or by hand.
 - Ask which tools the company uses; ask for URLs and infer.
 - Read tracker, messenger, meeting or email tools during setup.
-- Write inside `${CLAUDE_PLUGIN_ROOT}`, inside a reference folder (other than the `DATA_ROOT` the user chose), or anywhere other than `DATA_ROOT`.
+- Write inside the plugin's own folder, inside a reference folder (other than the `DATA_ROOT` the user chose), or anywhere other than `DATA_ROOT`.
 - Look for state in `~/.claude/`, `${CLAUDE_PLUGIN_DATA}`, a pointer file, or parent directories of the connected folder.
 - Pick a data location the user did not name, or fall back to another path when the chosen one fails.
 - Open a folder picker or show a form without first explaining what it is for.

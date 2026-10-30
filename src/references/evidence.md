@@ -7,6 +7,7 @@ Shared contract between the report skills and the `source-*` sub-agents. A sub-a
 Plain text. Include what the workspace knows; leave out what it does not. Never send note bodies, previous reports or the user's own commentary; the agent's job is to look at the source, not to echo the workspace.
 
 ```
+evidenceFile: {{absolute path of this file}}    # the agent reads it first; it cannot locate plugin files on its own
 subject: {{Subject Name}}
 subjectType: team | forum | person
 period: {{YYYY-MM-DD}}..{{YYYY-MM-DD}}
@@ -75,6 +76,7 @@ Besides the period brief, the skill may send a sub-agent a **recheck brief**: a 
 
 ```
 mode: recheck
+evidenceFile: {{absolute path of this file}}
 subject: {{Subject Name}}
 language: {{language the user is writing in}}
 since: {{YYYY-MM-DD}}        # date the item was first recorded

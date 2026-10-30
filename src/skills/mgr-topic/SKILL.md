@@ -10,7 +10,7 @@ Single point of authority over `topics/*.md` notes. Everything that creates, lis
 
 ## Step 0 — Find existing state
 
-`DATA_ROOT` is where `mgr-setup` saved `config.json` (marker `"plugin": "eis-manager-assistant"`). Find it exactly as the other `mgr-*` skills do: a path in the request (`--data-root`), or the folder connected to the session (marker in it, in `manager-assistant/` inside it, or one level down). No `~/.claude/`, no `${CLAUDE_PLUGIN_DATA}`, no parent walking.
+`DATA_ROOT` is where `mgr-setup` saved `config.json` (marker `"plugin": "eis-manager-assistant"`). Find it exactly as the other `mgr-*` skills do: a path in the request (`--data-root`), then the folder connected to the session (marker in it, in `manager-assistant/` inside it, or one level down; on hosts without folder connection, the session's working directory counts as the connected folder), then a path the host keeps for this user across sessions (an entry in the host's persistent memory, a line in the user's instructions file, or the `EIS_MANAGER_ASSISTANT_DATA_ROOT` environment variable). No `~/.claude/`, no `${CLAUDE_PLUGIN_DATA}`, no parent walking.
 
 `WS` is `DATA_ROOT/workspaces/{{activeWorkspace}}`. Topics live in `WS/topics/`; subjects in `WS/teams/`, `WS/forums/` and `WS/people/`; reports in `WS/reports/{{YYYY-MM}}/` (table in `data-model.md`). File names carry no type prefix: a topic is `WS/topics/{{Name}}.md` and its wikilink is `[[{{Name}}]]`. If `WS` still has prefixed notes (`Team - X.md`, `Topic - X.md`) at its root, it predates 0.3.0: stop with `STATUS: BLOCKED` and ask the user to run `/mgr-setup` once to migrate. Not found:
 
@@ -21,8 +21,11 @@ No configuration found. Connect the folder that holds manager-assistant/, tell m
 
 ## References
 
-- `${CLAUDE_PLUGIN_ROOT}/references/data-model.md` — before any write, for frontmatter, wikilinks and the editing rules.
-- `${CLAUDE_PLUGIN_ROOT}/skills/mgr-topic/templates/Topic.md` — before `--add`, this is the schema. Fill every placeholder, remove the example row of `## Fontes relacionadas` and the example bullets of `## Arquivos e assets` when unfilled, keep only the fields the template defines. Optional fields (`isPartOf`, `dueDate`) are added only if the user provided a value; otherwise omit them entirely — do not emit them as `TBD`.
+Paths are relative to this skill's folder.
+
+- `../../references/data-model.md` — before any write, for frontmatter, wikilinks and the editing rules.
+- `templates/Topic.md` — before `--add`, this is the schema. Fill every placeholder, remove the example row of `## Fontes relacionadas` and the example bullets of `## Arquivos e assets` when unfilled, keep only the fields the template defines. Optional fields (`isPartOf`, `dueDate`) are added only if the user provided a value; otherwise omit them entirely — do not emit them as `TBD`.
+- Sub-agents: each `eis-manager-assistant:{{name}}` agent is the file `../../agents/{{name}}.md`. On a host that does not register plugin agents, run a sub-agent whose instructions are that file's body (below its frontmatter), with the brief as its task, and keep the tool limits its frontmatter declares (read-only agents stay read-only).
 
 ## Mode resolution
 
@@ -43,7 +46,7 @@ All modes require Step 0 to have found `config.json` with an active workspace. I
 - First line of the final output is `STATUS: OK | WARN | BLOCKED`.
 - Answer in the language the user is writing in.
 - Never invent a value. A required field the user did not provide stays as `TBD` and is listed in the summary; optional fields (`isPartOf`, `dueDate`) are simply omitted when absent.
-- Never write outside `WS` or inside `${CLAUDE_PLUGIN_ROOT}`.
+- Never write outside `WS` or inside the plugin's own folder.
 - Never rewrite an existing note in full. Every write is either a new file, an appended row/bullet, a renamed file, or a surgical edit to a single field or line.
 - Reports (`Report - *.md`) may be edited by dedicated skills or agents (e.g. `link-keeper` rewriting a wikilink on rename), but this skill never edits report factual content (`[Fn]`, farol, resumo). On remove, broken wikilinks in reports are left as plain labels per `data-model.md`.
 

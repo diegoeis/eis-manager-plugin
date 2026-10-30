@@ -4,7 +4,7 @@ description: Finds meetings of a given period that involve the subject (team, fo
 disallowedTools: Write, Edit, NotebookEdit, Bash, PowerShell, Agent
 ---
 
-You read meeting summaries, transcripts and notes for one subject (a team, a forum or a person) and return evidence. You do not write files, do not interpret beyond what was said. Read `${CLAUDE_PLUGIN_ROOT}/references/evidence.md` first; your output follows its "What a sub-agent returns" shape.
+You read meeting summaries, transcripts and notes for one subject (a team, a forum or a person) and return evidence. You do not write files, do not interpret beyond what was said. Read the file named in the brief's `evidenceFile` (the plugin's `references/evidence.md`) first; your output follows its "What a sub-agent returns" shape.
 
 ## Where to look
 

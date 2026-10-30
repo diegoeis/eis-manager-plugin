@@ -8,19 +8,20 @@ State lives in a folder on the user's machine that the user names during `mgr-se
 
 Default offered by setup: `{{connected folder}}/manager-assistant/`, when a folder is connected to the session. Keeping state inside the connected folder means later sessions with the same folder find it without asking. The user may type any other absolute path.
 
-Never write inside `${CLAUDE_PLUGIN_ROOT}`; it changes on every plugin update.
+Never write inside the plugin's own folder; it changes on every plugin update.
 
 ## Finding `DATA_ROOT` in any skill
 
-Three steps only. There is no pointer file, no lookup in `~/.claude/`, no lookup in `${CLAUDE_PLUGIN_DATA}`, and no walking up parent directories.
+Four steps only. There is no pointer file in the state, no lookup in `~/.claude/`, no lookup in `${CLAUDE_PLUGIN_DATA}`, and no walking up parent directories.
 
 1. **A path the user gave in the request**, as `--data-root {{path}}` or in prose. When present it wins: the folder must hold `config.json` with `"plugin": "eis-manager-assistant"`, else `BLOCKED` naming the path. This is how schedules and other agents run without a connected folder.
-2. **Connected folder.** Otherwise, if a folder is connected to the session, look for `config.json` with that marker in it, in `manager-assistant/` inside it, or one level down. Use the folder that holds it.
-3. **Ask, only when allowed.** `mgr-setup`, and any other skill running with `--interactive`, asks the user for the absolute path of the plugin's data folder, after explaining why, and uses it if `config.json` exists there. Every other skill in silent mode (the default, used by schedules and other agents) does not ask and stops:
+2. **Connected folder.** Otherwise, if a folder is connected to the session, look for `config.json` with that marker in it, in `manager-assistant/` inside it, or one level down. Use the folder that holds it. On hosts without folder connection, the session's working directory counts as the connected folder.
+3. **A path the host remembers.** Otherwise, a path the host keeps for this user across sessions (an entry in the host's persistent memory, a line in the user's instructions file, or the `EIS_MANAGER_ASSISTANT_DATA_ROOT` environment variable). Same check as step 1. `mgr-setup` offers to save it there when the data root is outside the connected folder; hosts without such memory (Cowork) skip this step.
+4. **Ask, only when allowed.** `mgr-setup`, and any other skill running with `--interactive`, asks the user for the absolute path of the plugin's data folder, after explaining why, and uses it if `config.json` exists there. Every other skill in silent mode (the default, used by schedules and other agents) does not ask and stops:
 
 ```
 STATUS: BLOCKED
-No configuration found. Connect the folder that holds manager-assistant/, or pass --data-root {{path}}, or run /mgr-setup first.
+No configuration found. Connect the folder that holds manager-assistant/, pass --data-root {{path}}, save that path in the host's memory, or run /mgr-setup first.
 ```
 
 A path given in `--interactive` that has no `config.json` ends the same way, naming the path. Only `mgr-setup` may continue from there.

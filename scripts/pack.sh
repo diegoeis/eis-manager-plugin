@@ -22,8 +22,22 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 PLUGIN_DIR="$REPO_ROOT/src"
 DIST_DIR="$REPO_ROOT/dist"
 PLUGIN_NAME=$(grep -o '"name": "[^"]*"' "$PLUGIN_DIR/.claude-plugin/plugin.json" | head -1 | cut -d'"' -f4)
-# version é opcional no plugin.json; sem ela, o pacote sai sem sufixo de versão
-VERSION=$(grep -o '"version": "[^"]*"' "$PLUGIN_DIR/.claude-plugin/plugin.json" | cut -d'"' -f4 || true)
+# A versão do Claude fica em metadata.release (ou em "version", se existir) de
+# src/.claude-plugin/plugin.json. src/plugin.json é o manifesto Agent Plugins v1
+# (Hermes) e precisa ter a mesma versão em "version": o script recusa se divergirem.
+VERSION=$(python3 -c 'import json,sys; m=json.load(open(sys.argv[1])); print(m.get("version") or m.get("metadata",{}).get("release",""))' "$PLUGIN_DIR/.claude-plugin/plugin.json")
+HERMES_MANIFEST="$PLUGIN_DIR/plugin.json"
+[[ -f "$HERMES_MANIFEST" ]] || { echo "Erro: src/plugin.json (manifesto Hermes) nao existe" >&2; exit 1; }
+HVERSION=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("version",""))' "$HERMES_MANIFEST")
+if [[ "$HVERSION" != "$VERSION" ]]; then
+  echo "Erro: versao diverge: src/plugin.json tem \"$HVERSION\", src/.claude-plugin/plugin.json tem \"$VERSION\". Suba as duas." >&2
+  exit 1
+fi
+# ${CLAUDE_PLUGIN_ROOT} so eh expandido pelo Claude Code; no Hermes o caminho quebra.
+if grep -rn --include='*.md' --include='*.json' 'CLAUDE_PLUGIN_ROOT' "$PLUGIN_DIR" >&2; then
+  echo "Erro: use caminho relativo a pasta da skill em vez de \${CLAUDE_PLUGIN_ROOT}." >&2
+  exit 1
+fi
 if [[ -n "$VERSION" ]]; then
   PACK_NAME="${PLUGIN_NAME}-v${VERSION}"
 else

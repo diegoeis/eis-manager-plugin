@@ -4,7 +4,7 @@ Plugin para Claude (Claude Code e Cowork) que ajuda Heads, Leads, PMs e Tech Lea
 
 Ele junta o que está espalhado entre project tracker, messenger, reuniões e as suas próprias notas, e gera status reports em que toda afirmação tem fonte. O que não tem fonte fica marcado como não verificado ou fica de fora.
 
-> Versão atual: `0.3.5` (ver [`src/.claude-plugin/plugin.json`](src/.claude-plugin/plugin.json)).
+> Versão atual: `0.3.6` (ver [`src/.claude-plugin/plugin.json`](src/.claude-plugin/plugin.json) e [`src/plugin.json`](src/plugin.json)).
 
 ## O problema
 
@@ -58,7 +58,7 @@ Os três `source-*` devolvem evidências num formato fixo ([`src/references/evid
 
 ### Requisitos
 
-- Claude Code ou Cowork (Claude desktop).
+- Claude Code, Cowork (Claude desktop) ou Hermes.
 - Conectores das fontes que você quer usar (tracker, messenger, ferramenta de reuniões). Nenhum é obrigatório: o plugin trabalha com o que estiver disponível e diz o que faltou.
 
 ### Desenvolvimento local (Claude Code)
@@ -68,16 +68,26 @@ git clone git@github.com:diegoeis/eis-manager-plugin.git
 ```
 
 ```bash
-claude --plugin-dir ./eis-manager-plugin/plugin
+claude --plugin-dir ./eis-manager-plugin/src
 ```
+
+Pelo marketplace: `/plugin marketplace add diegoeis/eis-plugins` e `/plugin install eis-manager-assistant@eis-plugins`.
+
+### Hermes
+
+```bash
+hermes plugins install diegoeis/eis-manager-plugin/src --enable
+```
+
+O Hermes lê `src/plugin.json` (Agent Plugins v1) e carrega as skills. Ele não registra os sub-agentes de `src/agents/`: as skills rodam cada um como sub-agente comum, com o arquivo como instruções. Como o Hermes não tem pasta conectada, o `/mgr-setup` oferece salvar o caminho da raiz de dados na memória do Hermes, e as outras skills o encontram lá (ou em `--data-root`, ou na variável `EIS_MANAGER_ASSISTANT_DATA_ROOT`).
 
 ### Pacote
 
 ```bash
-./maintainers/scripts/pack.sh
+./scripts/pack.sh
 ```
 
-Gera `dist/eis-manager-assistant-v<versão>.zip` com o conteúdo de `src/` (use `--tar` para `.tar.gz`). Antes de zipar, o script valida o frontmatter de skills e agentes (campos `name`/`description`, `description` com até 1024 caracteres e sem `<...>`). O zip pode ser instalado pelo fluxo de upload de plugins do seu host.
+Gera `dist/eis-manager-assistant-v<versão>.zip` com o conteúdo de `src/` (use `--tar` para `.tar.gz`). Antes de zipar, o script confere que os dois manifestos têm a mesma versão, que nenhum arquivo usa `${CLAUDE_PLUGIN_ROOT}` e valida o frontmatter de skills e agentes (campos `name`/`description`, `description` com até 1024 caracteres e sem `<...>`). O zip pode ser instalado pelo fluxo de upload de plugins do seu host.
 
 ## Primeiros passos
 
@@ -181,7 +191,7 @@ AGENTS.md, CLAUDE.md             instruções para agentes que trabalham neste r
 1. Leia [`.claude/rules.md`](.claude/rules.md): é o contrato de implementação (layout, convenções de skill, onde vive o estado, formato das notas).
 2. Siga a [documentação oficial de plugins do Claude Code](https://code.claude.com/docs/en/plugins-reference).
 3. Comece pela solução mais simples. O que ficou de fora está em [`docs/backlog.md`](docs/backlog.md).
-4. Mudou comportamento? Atualize os docs e references relacionados e faça bump de versão em `plugin.json` (semver).
+4. Mudou comportamento? Atualize os docs e references relacionados e faça bump de versão nos dois manifestos, `src/.claude-plugin/plugin.json` (`metadata.release`) e `src/plugin.json` (`version`), em semver; o `pack.sh` recusa se divergirem.
 5. Rode `./maintainers/scripts/pack.sh` antes de publicar para validar o frontmatter.
 
 ## Roadmap

@@ -4,7 +4,7 @@ description: Reads a subject's board (team, forum or person) in the project trac
 disallowedTools: Write, Edit, NotebookEdit, Bash, PowerShell, Agent
 ---
 
-You read one tracker board for one subject (a team, a forum or a person) and return evidence. Work items only: linked pull requests, merge requests, branches and builds attached to an issue are not items and never become evidence on their own. You do not write files, do not run shell commands, do not interpret. Read `${CLAUDE_PLUGIN_ROOT}/references/evidence.md` first; your output follows its "What a sub-agent returns" shape.
+You read one tracker board for one subject (a team, a forum or a person) and return evidence. Work items only: linked pull requests, merge requests, branches and builds attached to an issue are not items and never become evidence on their own. You do not write files, do not run shell commands, do not interpret. Read the file named in the brief's `evidenceFile` (the plugin's `references/evidence.md`) first; your output follows its "What a sub-agent returns" shape.
 
 ## What you are looking for
 
